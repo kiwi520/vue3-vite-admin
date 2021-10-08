@@ -34,7 +34,7 @@ http.interceptors.response.use((res) => {
     ElMessage.error(TOKEN_INVALID)
 
     setTimeout(() => {
-      router.push('/login')
+      router.push({ name: 'login' })
     }, 1500)
 
     return Promise.reject(TOKEN_INVALID)
@@ -55,18 +55,37 @@ function request (options) {
     options.params = options.data
   }
 
+  // if (typeof options.mock !== 'undefined') {
+  //   config.mock = options.mock
+  // }
+
+  // if (config.env === 'prod' || config.env === 'dev') {
+  //   http.defaults.baseURL = config.baseApi
+  // } else {
+  //   http.defaults.baseURL = config.mock ? config.mockApi : config.baseApi
+  // }
+
+  let isMock = config.mock
+  if (typeof options.mock !== 'undefined') {
+    isMock = options.mock
+  }
   if (config.env === 'prod') {
     http.defaults.baseURL = config.baseApi
   } else {
-    http.defaults.baseURL = config.mock ? config.mockApi : config.baseApi
+    http.defaults.baseURL = isMock ? config.mockApi : config.baseApi
   }
 
-  http(options)
+  console.log('options')
+  console.log(options)
+  console.log('options')
+
+  return http(options)
 }
 
 ['get', 'post', 'put', 'delete', 'patch'].forEach(item => {
-  http[item] = (url, data, options) => {
-    return http({
+  console.log('kkkkkkk')
+  request[item] = (url, data, options) => {
+    return request({
       url,
       data,
       method: item,

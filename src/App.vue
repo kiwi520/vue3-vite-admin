@@ -1,18 +1,20 @@
 <template>
-  <router-view/>
+  <router-view />
 </template>
 
-<script setup>
-
+<script>
+export default {
+  mounted () {
+    this.$storage.setItem('ad', 'b')
+  }
+}
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+<style lang="scss">
+@import "./assets/css/reset.css";
+@import "assets/css/index.scss";
+*{
+    padding: 0;
+    margin: 0;
 }
 </style>
