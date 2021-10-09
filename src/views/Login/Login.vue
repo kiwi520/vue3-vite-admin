@@ -82,8 +82,17 @@ export default {
           console.log('111111')
           this.$api.login(this.user).then((res) => {
             console.log('ddaaaaaaaa')
-            this.$store.commit('saveUserInfo', res)
-            this.$router.push('/welcome')
+            // console.log(res)
+            console.log('ddaaaaaaaa')
+            if (res.code === 200) {
+              this.$store.commit('saveUserInfo', res)
+              this.$router.push('/welcome')
+            } else {
+              console.log('saaa')
+              this.$message.error(res.msg)
+            }
+          }).catch(err => {
+            this.$message.error(err.msg)
           })
         } else {
           console.log('error submit!!')
