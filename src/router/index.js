@@ -18,7 +18,24 @@ const routes = [
           title: '欢迎页'
         },
         component: () => import('../views/Welcome/Welcome.vue')
+      },
+      {
+        name: 'dept',
+        path: '/dept',
+        meta: {
+          title: '部门管理'
+        },
+        component: () => import('../views/Dept/Dept.vue')
+      },
+      {
+        name: 'user',
+        path: '/user',
+        meta: {
+          title: '用户管理'
+        },
+        component: () => import('../views/Users/User.vue')
       }
+
     ]
     // component: () => import('../views/Home/Home.vue')
   },

@@ -10,6 +10,6 @@ export default {
     console.log('payload')
     console.log(payload)
     console.log('payload')
-    storage.setItem('userInfo', payload)
+    storage.setItem('userInfo', payload || {})
   }
 }

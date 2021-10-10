@@ -5,8 +5,8 @@ const env = import.meta.env.MODE || 'prod'
 const EnvConfig = {
   dev: {
     baseApi: '/api',
-    // mockApi: 'https://www.fastmock.site/mock/67f6c1fbe2c76d759c75dd075f508ad6/api/'
-    mockApi: ''
+    mockApi: 'https://www.fastmock.site/mock/67f6c1fbe2c76d759c75dd075f508ad6/api/'
+    // mockApi: ''
   },
   test: {
     baseApi: '/api',

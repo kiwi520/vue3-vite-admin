@@ -84,14 +84,15 @@ export default {
             console.log('ddaaaaaaaa')
             // console.log(res)
             console.log('ddaaaaaaaa')
-            if (res.code === 200) {
-              this.$store.commit('saveUserInfo', res)
+            if (res.data.code === 200) {
+              this.$store.commit('saveUserInfo', res.data)
               this.$router.push('/welcome')
             } else {
               console.log('saaa')
               this.$message.error(res.msg)
             }
           }).catch(err => {
+            console.log(err)
             this.$message.error(err.msg)
           })
         } else {
