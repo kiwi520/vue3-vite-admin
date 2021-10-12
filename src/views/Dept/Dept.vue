@@ -47,41 +47,52 @@
         <!--          批量删除-->
         <!--        </el-button>-->
       </div>
-      <!--      <el-table-->
-      <!--        :data="deptList"-->
-      <!--        row-key="_id"-->
-      <!--        @selection-change="handleSelectionChange"-->
-      <!--      >-->
-      <!--        <el-table-column-->
-      <!--          type="selection"-->
-      <!--          width="55"-->
-      <!--        />-->
-      <!--        <el-table-column-->
-      <!--          v-for="item in columns"-->
-      <!--          :key="item.prop"-->
-      <!--          :prop="item.prop"-->
-      <!--          :label="item.label"-->
-      <!--          v-bind="item"-->
-      <!--        />-->
-      <!--        <el-table-column label="操作">-->
-      <!--          <template #default="scope">-->
-      <!--            <el-button-->
-      <!--              size="mini"-->
-      <!--              type="primary"-->
-      <!--              @click="handleEdit(scope.$index, scope.row)"-->
-      <!--            >-->
-      <!--              编辑-->
-      <!--            </el-button>-->
-      <!--            <el-button-->
-      <!--              size="mini"-->
-      <!--              type="danger"-->
-      <!--              @click="handleDelete(scope.$index, scope.row)"-->
-      <!--            >-->
-      <!--              删除-->
-      <!--            </el-button>-->
-      <!--          </template>-->
-      <!--        </el-table-column>-->
-      <!--      </el-table>-->
+      <el-table
+        :data="SearchDeptList"
+        row-key="_id"
+        @selection-change="handleSelectionChange"
+      >
+        <el-table-column
+          type="selection"
+          width="55"
+        />
+        <el-table-column
+          v-for="item in columns"
+          :key="item.prop"
+          :prop="item.prop"
+          :label="item.label"
+          :formatter="item.formatter"
+          v-bind="item"
+        />
+<!--        <el-table-column-->
+<!--          label="创建时间"-->
+<!--          prop="createTime"-->
+<!--          :formatter="formatterTime"-->
+<!--        />-->
+<!--        <el-table-column-->
+<!--          label="更新时间"-->
+<!--          prop="updateTime"-->
+<!--          :formatter="formatterTime"-->
+<!--        />-->
+        <el-table-column label="操作">
+          <template #default="scope">
+            <el-button
+              size="mini"
+              type="primary"
+              @click="handleEdit(scope.row)"
+            >
+              编辑
+            </el-button>
+            <el-button
+              size="mini"
+              type="danger"
+              @click="handleDelete(scope.row._id)"
+            >
+              删除
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
     </div>
     <el-dialog
       v-model="showModal"
@@ -91,7 +102,9 @@
         ref="deptForm"
         :model="deptForm"
         :rules="rules"
-        label-width="120"
+        label-width="100px"
+        label-position="right"
+        style="display: flex;flex-flow: column nowrap; justify-content: start;align-items: center;"
       >
         <el-form-item
           label="上级部门"
@@ -105,7 +118,6 @@
             clearable
             :show-all-levels="true"
             :options="deptList"
-            @change="changeDeptParaentId"
           />
         </el-form-item>
         <el-form-item
@@ -114,6 +126,7 @@
         >
           <el-input
             v-model="deptForm.deptName"
+            style="width: 220px"
             placeholder="请输入部门名称"
           />
         </el-form-item>
@@ -122,7 +135,7 @@
           prop="deptLeader"
         >
           <el-select
-            v-model="deptForm.deptLeaderName"
+            v-model="deptForm.deptLeader"
             placeholder="请选择部门负责人"
             @change="changeEmail"
           >
@@ -140,6 +153,7 @@
         >
           <el-input
             v-model="deptForm.deptLeaderEmail"
+            style="width: 220px"
             placeholder="请输入负责人邮箱"
             disabled
           />
@@ -158,7 +172,7 @@
   </div>
 </template>
 <script>
-
+import moment from 'moment'
 export default {
   name: 'Dept',
   data () {
@@ -169,22 +183,28 @@ export default {
       columns: [
         {
           label: '部门名称',
-          prop: 'deptName'
+          prop: 'deptName',
+          formatter: ''
         },
         {
           label: '部门负责人',
-          prop: 'deptLeaderName'
+          prop: 'deptLeaderName',
+          formatter: ''
         },
+
         {
           label: '更新时间',
-          prop: 'updateTime'
+          prop: 'updateTime',
+          formatter: this.formatterTime
         },
         {
           label: '创建时间',
-          prop: 'createTime'
+          prop: 'createTime',
+          formatter: this.formatterTime
         }
       ],
       deptList: [],
+      SearchDeptList: [],
       pager: {
         pageNum: 1,
         pageSize: 10
@@ -192,7 +212,9 @@ export default {
       action: '',
       showModal: false,
       deptLeaderList: [],
-      deptForm: {},
+      deptForm: {
+        parentId: [null]
+      },
       rules: {
         parentId: [
           {
@@ -204,13 +226,17 @@ export default {
       }
     }
   },
+  computed: {
+
+  },
   mounted () {
-    this.getDeptList()
+    this.getDeptList('search')
     this.getDeptLeaderList()
   },
   methods: {
     handleQueryDept () {
       console.log('handleQueryDept')
+      this.getDeptList('search')
     },
     handleReset (form) {
       console.log('handleReset')
@@ -219,14 +245,30 @@ export default {
     handleCreate () {
       this.action = 'create'
       this.showModal = true
+      this.getDeptList(this.action)
     },
     handleEdit (row) {
       this.action = 'edit'
       this.showModal = true
+      this.$nextTick(() => {
+        console.log('row')
+        console.log(row)
+        console.log('row')
+        Object.assign(this.deptForm, row, {
+          deptLeader: `${row.deptLeaderId}/${row.deptLeaderName}/${row.deptLeaderEmail}`,
+          parentId: row.parentId
+        })
+        this.getDeptList(this.action)
+      })
     },
-    handleDelete (id) {
+    async handleDelete (id) {
       this.action = 'delete'
-      this.showModal = true
+      const params = { _id: id, action: this.action }
+      const res = await this.$api.deptOperate(params)
+      if (res) {
+        this.$message.success('删除成功')
+        this.getDeptList('search')
+      }
     },
     // 关闭modal
     handleClose () {
@@ -237,21 +279,31 @@ export default {
       console.log(this.deptForm)
       this.$refs.deptForm.validate(async (valid) => {
         if (valid) {
-          console.log('this.deptForm')
-          console.log(this.deptForm)
-          console.log(this.deptForm.parentId)
-          console.log('this.deptForm')
-          const params = { ...this.deptForm, action: this.action }
-          // delete params.user
-          await this.$api.deptOperate(params)
-          this.$message.success('操作成功')
-          this.handleClose()
-          // this.getDeptList()
+          if (this.deptForm.deptName && this.deptForm.deptLeaderId && this.deptForm.deptLeaderName && this.deptForm.deptLeaderEmail) {
+            const params = { ...this.deptForm, action: this.action }
+            const res = await this.$api.deptOperate(params)
+            if (res) {
+              this.$message.success('操作成功')
+              this.handleClose()
+              this.getDeptList('search')
+              this.deptForm = {}
+            }
+          } else {
+            this.$message.error('资料不完整，请先填写完整再提交')
+          }
         }
       })
     },
     changeDeptParaentId () {
       this.$refs.parentIdCascader.dropDownVisible = false
+    },
+    formatterTime (row, column, cellValue, index) {
+      const dateFF = row[column.property]
+      if (dateFF != null) {
+        return moment(dateFF).format('ll')
+      } else {
+        return ''
+      }
     },
     changeEmail (val) {
       console.log('=>', val)
@@ -273,16 +325,14 @@ export default {
     async getDeptLeaderList () {
       const { data: { data } } = await this.$api.getDeptLeaderList()
       this.deptLeaderList = data
-      console.log('deptLeaderList')
-      console.log(data)
-      console.log('deptLeaderList')
     },
-    async getDeptList () {
-      const { data: { data } } = await this.$api.getDeptList(this.queryForm)
-      console.log('listooooooolist')
-      console.log(data)
-      console.log('listooooooolist')
-      this.deptList = data || []
+    async getDeptList (action) {
+      const { data: { data } } = await this.$api.getDeptList(Object.assign(this.queryForm, { action: action }))
+      if (action === 'search') {
+        this.SearchDeptList = data || []
+      } else {
+        this.deptList = data || []
+      }
     }
   }
 
@@ -315,7 +365,7 @@ export default {
         height: 100%;
         width: 100%;
         background-color: white;
-        border: 1px saddlebrown solid;
+        //border: 1px saddlebrown solid;
         .action {
             border-radius: 5px;
             background: #ffffff;
