@@ -45,10 +45,33 @@ export default {
       data: params
     })
   },
+  userDel (params) {
+    return request({
+      url: '/users/delete',
+      method: 'post',
+      data: params
+    })
+  },
+  menuSubmit (params) {
+    return request({
+      url: '/menu/operate',
+      method: 'post',
+      data: params,
+      mock: false
+    })
+  },
   userSubmit (params) {
     return request({
       url: '/users/operate',
       method: 'post',
+      data: params,
+      mock: false
+    })
+  },
+  getMenuList (params) {
+    return request({
+      url: '/menu/list',
+      method: 'get',
       data: params,
       mock: false
     })
@@ -64,6 +87,30 @@ export default {
   deptOperate (params) {
     return request({
       url: '/dept/operate',
+      method: 'post',
+      data: params,
+      mock: false
+    })
+  },
+  roleOperate (params) {
+    return request({
+      url: '/roles/operate',
+      method: 'post',
+      data: params,
+      mock: false
+    })
+  },
+  getRoleList (params) {
+    return request({
+      url: '/roles/list',
+      method: 'get',
+      data: params,
+      mock: false
+    })
+  },
+  updatePermission (params) {
+    return request({
+      url: '/roles/update/permission',
       method: 'post',
       data: params,
       mock: false

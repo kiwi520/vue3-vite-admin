@@ -64,16 +64,16 @@
           :formatter="item.formatter"
           v-bind="item"
         />
-<!--        <el-table-column-->
-<!--          label="创建时间"-->
-<!--          prop="createTime"-->
-<!--          :formatter="formatterTime"-->
-<!--        />-->
-<!--        <el-table-column-->
-<!--          label="更新时间"-->
-<!--          prop="updateTime"-->
-<!--          :formatter="formatterTime"-->
-<!--        />-->
+        <!--        <el-table-column-->
+        <!--          label="创建时间"-->
+        <!--          prop="createTime"-->
+        <!--          :formatter="formatterTime"-->
+        <!--        />-->
+        <!--        <el-table-column-->
+        <!--          label="更新时间"-->
+        <!--          prop="updateTime"-->
+        <!--          :formatter="formatterTime"-->
+        <!--        />-->
         <el-table-column label="操作">
           <template #default="scope">
             <el-button
@@ -195,12 +195,16 @@ export default {
         {
           label: '更新时间',
           prop: 'updateTime',
-          formatter: this.formatterTime
+          formatter (row, column, value) {
+            return moment(row.updateTime).format('ll')
+          }
         },
         {
           label: '创建时间',
           prop: 'createTime',
-          formatter: this.formatterTime
+          formatter (row, column, value) {
+            return moment(row.createTime).format('ll')
+          }
         }
       ],
       deptList: [],

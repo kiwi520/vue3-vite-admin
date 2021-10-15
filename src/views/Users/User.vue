@@ -95,6 +95,7 @@
           :key="item.prop"
           :prop="item.prop"
           :label="item.label"
+          :formatter="item.formatter"
         />
         <el-table-column label="操作">
           <template #default="scope">
@@ -114,6 +115,15 @@
           </template>
         </el-table-column>
       </el-table>
+      <el-pagination
+        style="text-align: right;margin: 10px 10px 0 0"
+        class="pagination"
+        background
+        layout="prev, pager, next"
+        :total="UserTableState.pager.total"
+        :page-size="UserTableState.pager.pageSize"
+        @current-change="handleCurrentChange"
+      />
     </div>
     <el-dialog
       v-model="userAddState.showModal"
@@ -223,6 +233,7 @@
 </template>
 <script>
 import { getCurrentInstance, onMounted, reactive, toRaw } from 'vue'
+import moment from 'moment'
 
 export default {
   name: 'User',
@@ -230,32 +241,15 @@ export default {
     //   获取Composition API 上下文对象
     const instance = getCurrentInstance()
 
-    // // handleCreate
-    // const handleCreate = () => {
-    //   state.action = 'create'
-    //   state.showModal = true
-    // }
-    //
-    // const handleReset = () => {
-    //   state.userForm = {
-    //     userName: '',
-    //     userEmail: '',
-    //     mobile: '',
-    //     job: '',
-    //     state: '',
-    //     roleList: '',
-    //     deptId: ''
-    //   }
-    // }
     const handleSelectionChange = () => {
 
     }
 
-    const { userAddState, handleCreate, handleReset, handleClose, handleSubmit } = userAddUserEffect(instance)
-    const { UserTableState, handleQuery } = userUserTableList(instance)
+    const { userAddState, handleCreate, handleReset, handleClose, handleSubmit, handleEdit } = userAddUserEffect(instance)
+    const { UserTableState, handleQuery, handleCurrentChange, handleDelete } = userUserTableList(instance)
 
     return {
-      UserTableState, userAddState, handleCreate, handleSelectionChange, handleQuery, handleReset, handleClose, handleSubmit
+      UserTableState, userAddState, handleCurrentChange, handleDelete, handleCreate, handleSelectionChange, handleQuery, handleReset, handleClose, handleSubmit, handleEdit
     }
   }
 
@@ -342,8 +336,7 @@ function userAddUserEffect (instance) {
     userAddState.showModal = false
   }
 
-  // const userAddStateRef = ref()
-
+  // 提交代码
   const handleSubmit = () => {
     instance.proxy.$refs.userAddStateRef.validate(async valid => {
       console.log(valid)
@@ -368,7 +361,24 @@ function userAddUserEffect (instance) {
     })
   }
 
-  return { userAddState, handleCreate, handleReset, handleClose, handleSubmit }
+  // 编辑用户数据
+  const handleEdit = (index, row) => {
+    console.log('index')
+    console.log(index)
+    console.log(row)
+    console.log('index')
+    userAddState.action = 'edit'
+    userAddState.showModal = true
+    // 获取部门列表
+    getDeptList()
+    // 获取角色列表
+    // getRoleAllList()
+    instance.proxy.$nextTick(() => {
+      Object.assign(userAddState.userForm, row)
+    })
+  }
+
+  return { userAddState, handleCreate, handleReset, handleClose, handleSubmit, handleEdit }
 }
 
 function userUserTableList (instance) {
@@ -401,19 +411,27 @@ function userUserTableList (instance) {
         mobile: '1111111'
       }
     ],
+    pager: {
+      pageNum: 1,
+      pageSize: 1,
+      total: 100
+    },
     // 定义动态表格-格式
     userTableColumns: [
       {
         label: '用户ID',
-        prop: 'userId'
+        prop: 'userId',
+        formatter: ''
       },
       {
         label: '用户名',
-        prop: 'userName'
+        prop: 'userName',
+        formatter: ''
       },
       {
         label: '用户邮箱',
-        prop: 'userEmail'
+        prop: 'userEmail',
+        formatter: ''
       },
       {
         label: '用户角色',
@@ -440,8 +458,8 @@ function userUserTableList (instance) {
         label: '注册时间',
         prop: 'createTime',
         width: 180,
-        formatter: (row, column, value) => {
-          // return utils.formateDate(new Date(value))
+        formatter: (row, column, cellValue, index) => {
+          return moment(row.createTime).format('ll')
         }
       },
       {
@@ -450,6 +468,7 @@ function userUserTableList (instance) {
         width: 180,
         formatter: (row, column, value) => {
           // return utils.formateDate(new Date(value))
+          return moment(row.lastLoginTime).format('ll')
         }
       }
     ]
@@ -459,20 +478,65 @@ function userUserTableList (instance) {
     console.log('init....')
   })
 
-  const handleQuery = async () => {
+  // 查询
+  const handleQuery = () => {
+    getUserList()
+    // const params = toRaw(UserTableState.userSearch)
+    // params.pageIndex = UserTableState.pager.pageNum
+    // params.pageSize = UserTableState.pager.pageSize
+    // console.log('userSearch')
+    // console.log(params)
+    // console.log('userSearch')
+    // const list = await instance.proxy.$api.getUserList(params)
+    // UserTableState.userTableList = list.data.data.list
+    // UserTableState.pager.total = list.data.data.page.total
+  }
+
+  const getUserList = async () => {
     const params = toRaw(UserTableState.userSearch)
+    params.pageIndex = UserTableState.pager.pageNum
+    params.pageSize = UserTableState.pager.pageSize
     console.log('userSearch')
     console.log(params)
     console.log('userSearch')
     const list = await instance.proxy.$api.getUserList(params)
-
-    console.log('list')
-    console.log(list)
-    console.log('list')
-    UserTableState.userTableList = list.data.list
+    UserTableState.userTableList = list.data.data.list
+    UserTableState.pager.total = list.data.data.page.total
   }
 
-  return { UserTableState, handleQuery }
+  // 分页事件处理
+  const handleCurrentChange = async (current) => {
+    UserTableState.pager.pageNum = current
+
+    console.log('UserTableState.pager.pageNum')
+    console.log(UserTableState.pager.pageNum)
+    console.log('UserTableState.pager.pageNum')
+
+    const params = toRaw(UserTableState.userSearch)
+    params.pageIndex = current
+    params.pageSize = UserTableState.pager.pageSize
+    console.log('userSearch')
+    console.log(params)
+
+    console.log('userSearch')
+    const list = await instance.proxy.$api.getUserList(params)
+    UserTableState.userTableList = list.data.data.list
+    UserTableState.pager.total = list.data.data.page.total
+    // getUserList()
+  }
+
+  const handleDelete = async (index, row) => {
+    console.log('row')
+    console.log(row)
+    console.log('row')
+    await instance.proxy.$api.userDel({
+      userIds: [row.userId] // 可单个删除，也可批量删除
+    })
+    instance.proxy.$message.success('删除成功')
+    getUserList()
+  }
+
+  return { UserTableState, handleQuery, handleCurrentChange, handleDelete }
 }
 </script>
 
