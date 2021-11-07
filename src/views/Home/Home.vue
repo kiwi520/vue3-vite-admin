@@ -22,7 +22,7 @@
               <i class="el-icon-setting" />
               <span>系统管理</span>
             </template>
-            <el-menu-item index="/system/dept">
+            <el-menu-item index="/system/department">
               部门管理
             </el-menu-item>
             <el-menu-item index="/system/user">
@@ -112,7 +112,7 @@ export default {
   },
   mounted () {
     this.getNoticeCount()
-    // this.getMenuList()
+    // this.getPermissionList()
   },
   methods: {
     handleLogout (key) {
@@ -135,8 +135,12 @@ export default {
       const count = await this.$api.noticeCount()
       this.noticeCount = count.data > 0
     },
-    async getMenuList () {
-      const menu = await this.$api.menuList()
+    async getPermissionList () {
+      const menu = await this.$api.getPermissionList()
+      console.log('menu')
+      console.log(menu)
+      console.log(menu)
+      console.log('menu')
       this.menuList = menu || []
     }
   }

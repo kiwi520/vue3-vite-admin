@@ -4,7 +4,8 @@ import storage from '../utils/storage'
 import mutations from './mutations'
 
 const state = {
-  userInfo: {} || storage.getItem('userInfo') // 获取用户信息
+  userInfo: {} || storage.getItem('userInfo'), // 获取用户信息
+  _token: {} || storage.getItem('_token') // 获取用户token
 }
 
 const store = createStore({

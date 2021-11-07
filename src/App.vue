@@ -4,8 +4,9 @@
 
 <script>
 export default {
+  name: 'App',
   mounted () {
-    this.$storage.setItem('ad', 'b')
+    // this.$storage.setItem('ad', 'b')
   }
 }
 </script>

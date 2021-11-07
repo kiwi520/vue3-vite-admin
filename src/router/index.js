@@ -21,11 +21,11 @@ const routes = [
       },
       {
         name: 'dept',
-        path: '/system/dept',
+        path: '/system/department',
         meta: {
           title: '部门管理'
         },
-        component: () => import('../views/Dept/Dept.vue')
+        component: () => import('../views/Department/Department.vue')
       },
       {
         name: 'user',
@@ -47,7 +47,7 @@ const routes = [
         name: 'role',
         path: '/system/role',
         meta: {
-          title: '菜单管理'
+          title: '角色管理'
         },
         component: () => import('../views/Role/Role.vue')
       }

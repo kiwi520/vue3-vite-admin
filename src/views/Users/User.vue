@@ -192,19 +192,24 @@
             />
           </el-select>
         </el-form-item>
-        <!--        <el-form-item-->
-        <!--          label="系统角色"-->
-        <!--          prop="roleList"-->
-        <!--        >-->
-        <!--          <el-select-->
-        <!--            v-model="state.userForm.roleList"-->
-        <!--            placeholder="请选择用户系统角色"-->
-        <!--            multiple-->
-        <!--            style="width: 100%"-->
-        <!--          >-->
-        <!--            <el-option />-->
-        <!--          </el-select>-->
-        <!--        </el-form-item>-->
+        <el-form-item
+          label="系统角色"
+          prop="roleList"
+        >
+          <el-select
+            v-model="userAddState.userForm.roleList"
+            placeholder="请选择用户系统角色"
+            multiple
+            style="width: 100%"
+          >
+            <el-option
+              v-for="role in userAddState.roleList"
+              :key="role._id"
+              :label="role.roleName"
+              :value="role._id"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item
           label="部门"
           prop="deptId"
@@ -247,6 +252,10 @@ export default {
 
     const { userAddState, handleCreate, handleReset, handleClose, handleSubmit, handleEdit } = userAddUserEffect(instance)
     const { UserTableState, handleQuery, handleCurrentChange, handleDelete } = userUserTableList(instance)
+
+    onMounted(() => {
+      handleQuery()
+    })
 
     return {
       UserTableState, userAddState, handleCurrentChange, handleDelete, handleCreate, handleSelectionChange, handleQuery, handleReset, handleClose, handleSubmit, handleEdit
@@ -292,7 +301,7 @@ function userAddUserEffect (instance) {
     // 获取部门列表
     getDeptList()
     // 获取角色列表
-    // getRoleAllList()
+    getRoleAllList()
   }
 
   const handleReset = () => {
@@ -307,7 +316,7 @@ function userAddUserEffect (instance) {
     }
   }
 
-  const getDeptList = async (root) => {
+  const getDeptList = async () => {
     const list = await instance.proxy.$api.getDeptList(userAddState.action)
     // const list = await api.getDeptList(userAddState.action)
     console.log('list')
@@ -317,10 +326,13 @@ function userAddUserEffect (instance) {
   }
 
   // 角色列表查询
-  // const getRoleAllList = async () => {
-  //   const list = await instance.proxy.$api.getRoleAllList()
-  //   userAddState.roleList = list.data.data
-  // }
+  const getRoleAllList = async () => {
+    const list = await instance.proxy.$api.getRoleAllList()
+    console.log('list')
+    console.log(list)
+    console.log('list')
+    userAddState.roleList = list.data.data
+  }
 
   // 关闭modal
   const handleClose = () => {
@@ -330,7 +342,7 @@ function userAddUserEffect (instance) {
       mobile: '',
       job: '',
       state: '',
-      // roleList: '',
+      roleList: '',
       deptId: ''
     }
     userAddState.showModal = false
@@ -366,13 +378,15 @@ function userAddUserEffect (instance) {
     console.log('index')
     console.log(index)
     console.log(row)
+    console.log(row)
+    console.log(row)
     console.log('index')
     userAddState.action = 'edit'
     userAddState.showModal = true
     // 获取部门列表
     getDeptList()
     // 获取角色列表
-    // getRoleAllList()
+    getRoleAllList()
     instance.proxy.$nextTick(() => {
       Object.assign(userAddState.userForm, row)
     })
@@ -421,17 +435,23 @@ function userUserTableList (instance) {
       {
         label: '用户ID',
         prop: 'userId',
-        formatter: ''
+        formatter: (row) => {
+          return row.userId
+        }
       },
       {
         label: '用户名',
         prop: 'userName',
-        formatter: ''
+        formatter: (row) => {
+          return row.userName
+        }
       },
       {
         label: '用户邮箱',
         prop: 'userEmail',
-        formatter: ''
+        formatter: (row) => {
+          return row.userEmail
+        }
       },
       {
         label: '用户角色',
@@ -458,7 +478,7 @@ function userUserTableList (instance) {
         label: '注册时间',
         prop: 'createTime',
         width: 180,
-        formatter: (row, column, cellValue, index) => {
+        formatter: (row) => {
           return moment(row.createTime).format('ll')
         }
       },
@@ -466,8 +486,7 @@ function userUserTableList (instance) {
         label: '最后登录时间',
         prop: 'lastLoginTime',
         width: 180,
-        formatter: (row, column, value) => {
-          // return utils.formateDate(new Date(value))
+        formatter: (row) => {
           return moment(row.lastLoginTime).format('ll')
         }
       }

@@ -9,20 +9,26 @@ import router from '../router'
 import config from '../config'
 import qs from 'qs'
 // import qs from 'qs'
+import storage from '../utils/storage'
 
 const TOKEN_INVALID = 'token认证失败，请重新登录'
 // const NETWORK_ERROR = '网络出错，请稍后重试'
 
 // 创建axios实例对象，添加全局配置
 const http = create({
-  baseURL: config.baseApi,
-  timeout: 8000
+  baseURL: config.baseApi
+  // timeout: 8000
 })
 
 // 请求拦截
 http.interceptors.request.use((cf) => {
   const headers = cf.headers
-  if (!headers.Authorization) headers.Authorization = 'Bear 21424estewt'
+  headers.contentType = 'application/json;charset=UTF-8'
+  console.log('storage.getItem(\'_token\')')
+  console.log(storage.getItem('_token'))
+  console.log('storage.getItem(\'_token\')')
+  // if (!headers.Authorization) headers.Authorization = 'Bearer ' + storage.getItem('_token')
+  if (!headers.Authorization) headers.Authorization = storage.getItem('_token')
   if (cf.method === 'post') {
     config.data = qs.stringify(config.data)
   }
@@ -32,29 +38,82 @@ http.interceptors.request.use((cf) => {
 })
 
 // 响应拦截
-http.interceptors.response.use((res) => {
-  console.log('interceptors')
-  console.log('interceptors')
-  console.log(res)
-  console.log('interceptors')
+http.interceptors.response.use((response) => {
+  // Return a successful response back to the calling service
 
-  const { code } = res.data
-  if (code === 50001) {
-    ElMessage.error(TOKEN_INVALID)
-
-    setTimeout(() => {
-      router.push({ name: 'login' })
-    }, 1500)
-
-    return Promise.reject(TOKEN_INVALID)
-  } else {
-    console.log('interceptors err')
-    console.log('interceptors err')
-    console.log('interceptors err')
-    // ElMessage.error(msg || NETWORK_ERROR)
-    return Promise.resolve(res)
+  return new Promise((resolve, reject) => {
+    resolve(response)
+  })
+}, error => {
+  if (error.response.status !== 401) {
+    return new Promise((resolve, reject) => {
+      reject(error)
+    })
   }
+
+  if (error.config.url === '/users/refreshToken' || error.response.message === 'Account is disabled.') {
+    // TokenStorage.clear()
+    storage.clearAll()
+    ElMessage.error(TOKEN_INVALID)
+    router.push({ name: 'login' })
+
+    return new Promise((resolve, reject) => {
+      reject(error)
+    })
+  }
+
+  // const refresh_flag = false
+  const userId = storage.getItem('userInfo')._id
+  const refreshToken = storage.getItem('_refresh_token')
+
+  return http.post('/users/refreshToken',
+    {
+      userId,
+      refreshToken
+    }
+
+  ).then((token) => {
+    // New request with new token
+    const config = error.config
+    // config.headers.Authorization = 'Bearer ' + token.data.data.token
+    config.headers.Authorization = token.data.data.token
+    storage.setItem('_token', token.data.data.token)
+    return new Promise((resolve, reject) => {
+      http.request(config).then(response => {
+        resolve(response)
+      }).catch((error) => {
+        reject(error)
+      })
+    })
+  })
+    .catch((error) => {
+      Promise.reject(error)
+    })
 })
+// 响应拦截
+// http.interceptors.response.use((res) => {
+//   console.log('interceptors')
+//   console.log('interceptors')
+//   console.log(res)
+//   console.log('interceptors')
+//
+//   const { code } = res.data
+//   if (code === 50001) {
+//     ElMessage.error(TOKEN_INVALID)
+//
+//     setTimeout(() => {
+//       router.push({ name: 'login' })
+//     }, 1500)
+//
+//     return Promise.reject(TOKEN_INVALID)
+//   } else {
+//     console.log('interceptors err')
+//     console.log('interceptors err')
+//     console.log('interceptors err')
+//     // ElMessage.error(msg || NETWORK_ERROR)
+//     return Promise.resolve(res)
+//   }
+// })
 
 /**
  * 请求封装函数

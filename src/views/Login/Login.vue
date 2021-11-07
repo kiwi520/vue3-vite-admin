@@ -11,21 +11,21 @@
           登录系统
         </div>
         <el-form-item
-          prop="userName"
+          prop="email"
           required
         >
           <el-input
-            v-model="user.userName"
+            v-model="user.email"
             type="text"
             prefix-icon="el-icon-user"
           />
         </el-form-item>
         <el-form-item
-          prop="userPwd"
+          prop="password"
           required
         >
           <el-input
-            v-model="user.userPwd"
+            v-model="user.password"
             type="password"
             prefix-icon="el-icon-view"
           />
@@ -49,11 +49,11 @@ export default {
   data () {
     return {
       user: {
-        userName: '',
-        userPwd: ''
+        email: '',
+        password: ''
       },
       rules: {
-        userName: [
+        email: [
           {
             required: true,
             message: '请输入用户名',
@@ -61,7 +61,7 @@ export default {
             validate: this.validateUserName
           }
         ],
-        userPwd: [
+        password: [
           {
             required: true,
             message: '请输入密码',
@@ -84,8 +84,8 @@ export default {
             console.log('ddaaaaaaaa')
             // console.log(res)
             console.log('ddaaaaaaaa')
-            if (res.data.code === 200) {
-              this.$store.commit('saveUserInfo', res.data)
+            if (res.status === 200) {
+              this.$store.commit('saveUserInfo', res.data.data)
               this.$router.push('/welcome')
             } else {
               console.log('saaa')

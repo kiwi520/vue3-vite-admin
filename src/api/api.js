@@ -3,7 +3,7 @@ import request from '../utils/request'
 export default {
   login (params) {
     return request({
-      url: '/users/login',
+      url: '/auth/login',
       method: 'post',
       data: params,
       mock: false
@@ -40,7 +40,7 @@ export default {
   },
   getUserList (params) {
     return request({
-      url: '/users/list',
+      url: '/user/list',
       method: 'get',
       data: params
     })
@@ -78,16 +78,24 @@ export default {
   },
   getDeptList (params) {
     return request({
-      url: '/dept/list',
+      url: '/department/list',
+      method: 'post',
+      data: params,
+      mock: false
+    })
+  },
+  getDeptTreeList (params) {
+    return request({
+      url: '/department/tree?pid=' + params,
       method: 'get',
       data: params,
       mock: false
     })
   },
-  deptOperate (params) {
+  departmentUpdate (params) {
     return request({
-      url: '/dept/operate',
-      method: 'post',
+      url: '/department/',
+      method: 'put',
       data: params,
       mock: false
     })
@@ -111,6 +119,24 @@ export default {
   updatePermission (params) {
     return request({
       url: '/roles/update/permission',
+      method: 'post',
+      data: params,
+      mock: false
+    })
+  },
+  getPermissionList () {
+    return request({
+      url: '/users/getPermissionList',
+      method: 'get',
+      data: {},
+      mock: false
+    })
+  },
+
+  // 新增部门
+  addDepartment (params) {
+    return request({
+      url: '/department/',
       method: 'post',
       data: params,
       mock: false

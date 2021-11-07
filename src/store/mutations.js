@@ -11,5 +11,7 @@ export default {
     console.log(payload)
     console.log('payload')
     storage.setItem('userInfo', payload || {})
+    storage.setItem('_token', payload.token || {})
+    // storage.setItem('_refresh_token', payload.refreshToken || {})
   }
 }
