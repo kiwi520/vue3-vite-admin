@@ -141,6 +141,15 @@ export default {
       data: params,
       mock: false
     })
+  },
+  // 删除部门
+  deleteDepartment (id) {
+    return request({
+      url: '/department?id=' + id,
+      method: 'delete',
+      data: {},
+      mock: false
+    })
   }
 
 }

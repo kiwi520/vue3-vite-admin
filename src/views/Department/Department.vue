@@ -86,7 +86,7 @@
             <el-button
               size="mini"
               type="danger"
-              @click="handleDelete(scope.row._id)"
+              @click="handleDelete(scope.row.ID)"
             >
               删除
             </el-button>
@@ -247,14 +247,39 @@ export default {
       handleQuery()
     })
 
-    const { handleCreate, handleClose, handleSubmit, changeEmail, getUserList, getDepartmentList } = useAddDepartmentEffect(instance, state)
-    const { handleQuery, handleReset, handleEdit, handleDelete, handlePageChange } = useDepartmentTableList(instance, state)
+    const {
+      handleQuery,
+      handleReset,
+      handleEdit,
+      handleDelete,
+      handlePageChange
+    } = useDepartmentTableList(instance, state)
 
-    return { state, handleQuery, handleReset, handleCreate, handleEdit, handleDelete, handlePageChange, handleClose, handleSubmit, changeEmail }
+    const {
+      handleCreate,
+      handleClose,
+      handleSubmit,
+      changeEmail,
+      getUserList,
+      getDepartmentList
+    } = useAddDepartmentEffect(instance, state, handleQuery)
+
+    return {
+      state,
+      handleQuery,
+      handleReset,
+      handleCreate,
+      handleEdit,
+      handleDelete,
+      handlePageChange,
+      handleClose,
+      handleSubmit,
+      changeEmail
+    }
   }
 }
 
-function useAddDepartmentEffect (instance, state) {
+function useAddDepartmentEffect (instance, state, handleQuery) {
   const handleCreate = () => {
     console.log('ddd')
     state.action = 'create'
@@ -263,9 +288,7 @@ function useAddDepartmentEffect (instance, state) {
 
   const handleClose = () => {
     console.log('handleClose')
-    state.deptForm = {
-
-    }
+    state.deptForm = {}
     state.showModal = false
     state.deptLeaderEmail = ''
   }
@@ -285,12 +308,10 @@ function useAddDepartmentEffect (instance, state) {
       if (status === 200) {
         instance.proxy.$message.success('添加成功')
         handleClose()
-        const list = await instance.proxy.$api.getDeptList(state.queryForm)
-        // state.departmentList = list.data.data
-        state.SearchDeptList = list.data.data.list
-        state.queryForm.total = list.data.data.total
+        handleQuery()
       }
-    } if (state.action === 'edit') {
+    }
+    if (state.action === 'edit') {
       const { status } = await instance.proxy.$api.departmentUpdate({
         department_name: state.deptForm.deptName,
         department_leader_id: parseInt(state.deptForm.deptLeaderCode),
@@ -301,10 +322,7 @@ function useAddDepartmentEffect (instance, state) {
       if (status === 200) {
         instance.proxy.$message.success('修改成功')
         handleClose()
-        const list = await instance.proxy.$api.getDeptList(state.queryForm)
-        // state.departmentList = list.data.data
-        state.SearchDeptList = list.data.data.list
-        state.queryForm.total = list.data.data.total
+        handleQuery()
       }
     }
   }
@@ -345,7 +363,14 @@ function useAddDepartmentEffect (instance, state) {
     }
   }
 
-  return { handleCreate, handleClose, handleSubmit, changeEmail, getUserList, getDepartmentList }
+  return {
+    handleCreate,
+    handleClose,
+    handleSubmit,
+    changeEmail,
+    getUserList,
+    getDepartmentList
+  }
 }
 
 function useDepartmentTableList (instance, state) {
@@ -354,9 +379,12 @@ function useDepartmentTableList (instance, state) {
 
     const list = await instance.proxy.$api.getDeptList(state.queryForm)
     // state.departmentList = list.data.data
-    state.SearchDeptList = list.data.data.list
-    state.queryForm.total = list.data.data.total
+    if (list.status === 200) {
+      state.SearchDeptList = list.data.data.list
+      state.queryForm.total = list.data.data.total
+    }
   }
+
   const handleReset = () => {
     state.queryForm = {
       department_name: ''
@@ -383,8 +411,18 @@ function useDepartmentTableList (instance, state) {
       state.updateDepartmentId = row.ID
     })
   }
-  const handleDelete = () => {
+  const handleDelete = async (id) => {
+    console.log('row')
+    console.log(id)
+    console.log('row')
 
+    const { status } = await instance.proxy.$api.deleteDepartment(id)
+    // state.departmentList = list.data.data
+    if (status === 200) {
+      instance.proxy.$message.success('删除成功')
+      handleQuery()
+    }
+    // deleteDepartment
   }
 
   const handlePageChange = (index) => {
@@ -392,12 +430,18 @@ function useDepartmentTableList (instance, state) {
     handleQuery()
   }
 
-  return { handleQuery, handleReset, handleEdit, handleDelete, handlePageChange }
+  return {
+    handleQuery,
+    handleReset,
+    handleEdit,
+    handleDelete,
+    handlePageChange
+  }
 }
 </script>
 
 <style lang="scss">
-.department-main{
+.department-main {
     width: 100%;
     height: 100%;
     display: flex;
@@ -405,7 +449,8 @@ function useDepartmentTableList (instance, state) {
     justify-content: start;
     align-items: center;
     background-color: #eef0f3;
-    .department-query-form{
+
+    .department-query-form {
         width: 100%;
         height: 41px;
         background-color: white;
@@ -417,7 +462,8 @@ function useDepartmentTableList (instance, state) {
         //border: 1px solid red;
         padding: 20px 20px 0;
     }
-    .department-table{
+
+    .department-table {
         height: 100%;
         width: 100%;
         background-color: white;
