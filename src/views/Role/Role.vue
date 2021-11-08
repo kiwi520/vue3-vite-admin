@@ -12,7 +12,7 @@
           prop="deptName"
         >
           <el-input
-            v-model="state.queryForm.roleName"
+            v-model="state.queryForm.role_name"
             placeholder="请输入部门名称"
             size="mini"
           />
@@ -97,7 +97,7 @@
 
     <el-dialog
       v-model="state.roleFormShowModal"
-      title="新增角色"
+      :title="state.action==='create'?'创建角色':'编辑角色'"
     >
       <el-form
         ref="roleForm"
@@ -110,7 +110,7 @@
           prop="roleName"
         >
           <el-input
-            v-model="state.roleFormRoleForm.roleName"
+            v-model="state.roleFormRoleForm.role_name"
             placeholder="请输入角色名称"
           />
         </el-form-item>
@@ -178,13 +178,17 @@ export default {
   setup () {
     const instance = getCurrentInstance()
     const state = reactive({
+      action: 'create',
       queryForm: {
-        roleName: ''
+        role_name: '',
+        total: 0,
+        page_index: 1,
+        page_size: 1
       },
       roleFormShowModal: false,
       roleFormAction: 'create',
       roleFormRoleForm: {
-        roleName: '',
+        role_name: '',
         remark: ''
       },
       roleFormRules: {
@@ -236,12 +240,14 @@ export default {
     })
 
     onMounted(() => {
-      getRoleList()
-      getMenuList()
+      // getRoleList()
+      // getMenuList()
     })
     const { handleRoleFormCreate, handleRoleFormClose, handleRoleFormSubmit } = useAddRoleEffect(state, instance)
-    const { handleOpenPermission, handlePermissionSubmit, permissionCloseModal, getMenuList } = useSetPermission(state, instance)
-    const { handleQuery, handleReset, handleCurrentChange, getRoleList, handleEdit, handleDel } = useRoleTableEffect(state, instance)
+    // const { handleOpenPermission, handlePermissionSubmit, permissionCloseModal, getMenuList } = useSetPermission(state, instance)
+    const { handleOpenPermission, handlePermissionSubmit, permissionCloseModal } = useSetPermission(state, instance)
+    // const { handleQuery, handleReset, handleCurrentChange, getRoleList, handleEdit, handleDel } = useRoleTableEffect(state, instance)
+    const { handleQuery, handleReset, handleCurrentChange, handleEdit, handleDel } = useRoleTableEffect(state, instance)
 
     return { state, handleQuery, handleReset, handleRoleFormCreate, handleRoleFormClose, handleRoleFormSubmit, handleCurrentChange, handleEdit, handleDel, handleOpenPermission, handlePermissionSubmit, permissionCloseModal }
   }
@@ -265,7 +271,7 @@ function useAddRoleEffect (state, instance) {
     console.log(params)
     console.log('data')
 
-    await instance.proxy.$api.roleOperate(params)
+    await instance.proxy.$api.addRole(params)
     state.roleFormShowModal = false
     handleRoleFormReset()
     instance.proxy.$message.success('添加角色成功')
@@ -340,11 +346,11 @@ function useSetPermission (state, instance) {
   }
 
   const getMenuList = async () => {
-    const { data } = await instance.proxy.$api.getMenuList()
-    console.log('data')
-    console.log(data)
-    console.log('data')
-    state.menuList = data.data
+    // const { data } = await instance.proxy.$api.getMenuList()
+    // console.log('data')
+    // console.log(data)
+    // console.log('data')
+    // state.menuList = data.data
   }
 
   return { handleOpenPermission, handlePermissionSubmit, permissionCloseModal, getMenuList }
@@ -356,38 +362,38 @@ function useRoleTableEffect (state, instance) {
   }
 
   const getRoleList = async () => {
-    const params = toRaw(state.queryForm)
-    params.pageIndex = state.pager.pageNum
-    params.pageSize = state.pager.pageSize
-    console.log('userSearch')
-    console.log(params)
-    console.log('userSearch')
-    const list = await instance.proxy.$api.getRoleList(params)
-    state.roleList = list ? list.data.data.list : []
-    getActionMap(list.data.data.list)
-    state.pager.total = list.data.data.page.total
+    // const params = toRaw(state.queryForm)
+    // params.pageIndex = state.pager.pageNum
+    // params.pageSize = state.pager.pageSize
+    // console.log('userSearch')
+    // console.log(params)
+    // console.log('userSearch')
+    // const list = await instance.proxy.$api.getRoleList(params)
+    // state.roleList = list ? list.data.data.list : []
+    // getActionMap(list.data.data.list)
+    // state.pager.total = list.data.data.page.total
   }
 
-  const getActionMap = (list) => {
-    const actionMap = {}
-    const deep = (arr) => {
-      while (arr.length) {
-        const item = arr.pop()
-        if (item.children && item.action) {
-          actionMap[item._id] = item.menuName
-        }
-        if (item.children && !item.action) {
-          deep(item.children)
-        }
-      }
-    }
-    deep(JSON.parse(JSON.stringify(list)))
-
-    console.log('actionMap')
-    console.log(actionMap)
-    console.log('actionMap')
-    state.actionMap = actionMap
-  }
+  // const getActionMap = (list) => {
+  //   const actionMap = {}
+  //   const deep = (arr) => {
+  //     while (arr.length) {
+  //       const item = arr.pop()
+  //       if (item.children && item.action) {
+  //         actionMap[item._id] = item.menuName
+  //       }
+  //       if (item.children && !item.action) {
+  //         deep(item.children)
+  //       }
+  //     }
+  //   }
+  //   deep(JSON.parse(JSON.stringify(list)))
+  //
+  //   console.log('actionMap')
+  //   console.log(actionMap)
+  //   console.log('actionMap')
+  //   state.actionMap = actionMap
+  // }
 
   const handleCurrentChange = () => {
     console.log('dddd')
@@ -395,8 +401,11 @@ function useRoleTableEffect (state, instance) {
   }
 
   const handleReset = () => {
+    console.log('handleReset')
+
     state.queryForm = {
-      roleName: ''
+      ...state.queryForm,
+      role_name: ''
     }
   }
 

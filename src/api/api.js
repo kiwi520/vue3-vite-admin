@@ -23,13 +23,7 @@ export default {
       mock: false
     })
   },
-  getDeptLeaderList (params) {
-    return request({
-      url: '/dept/deptLeaderList',
-      method: 'get',
-      mock: false
-    })
-  },
+
   getRoleAllList () {
     return request({
       url: '/roles/allList',
@@ -60,19 +54,92 @@ export default {
       mock: false
     })
   },
-  userSubmit (params) {
-    return request({
-      url: '/users/operate',
-      method: 'post',
-      data: params,
-      mock: false
-    })
-  },
+
   getMenuList (params) {
     return request({
       url: '/menu/list',
       method: 'get',
       data: params,
+      mock: false
+    })
+  },
+
+  roleOperate (params) {
+    return request({
+      url: '/roles/operate',
+      method: 'post',
+      data: params,
+      mock: false
+    })
+  },
+
+  updatePermission (params) {
+    return request({
+      url: '/roles/update/permission',
+      method: 'post',
+      data: params,
+      mock: false
+    })
+  },
+  getPermissionList () {
+    return request({
+      url: '/users/getPermissionList',
+      method: 'get',
+      data: {},
+      mock: false
+    })
+  },
+
+  // 后台用户
+  // 后台添加用户
+  userSubmit (params) {
+    return request({
+      url: '/admin/',
+      method: 'post',
+      data: params,
+      mock: false
+    })
+  },
+  // 后台编辑用户
+  adminUserUpdate (params) {
+    return request({
+      url: '/admin/',
+      method: 'put',
+      data: params,
+      mock: false
+    })
+  },
+  getAdminUserList (params) {
+    return request({
+      url: '/admin/list',
+      method: 'post',
+      data: params
+    })
+  },
+  adminDel (params) {
+    return request({
+      url: '/admin?id=' + params,
+      method: 'delete',
+      data: {}
+    })
+  },
+
+  // 部门
+  // 新增部门
+  addDepartment (params) {
+    return request({
+      url: '/department/',
+      method: 'post',
+      data: params,
+      mock: false
+    })
+  },
+  // 删除部门
+  deleteDepartment (id) {
+    return request({
+      url: '/department?id=' + id,
+      method: 'delete',
+      data: {},
       mock: false
     })
   },
@@ -100,56 +167,26 @@ export default {
       mock: false
     })
   },
-  roleOperate (params) {
-    return request({
-      url: '/roles/operate',
-      method: 'post',
-      data: params,
-      mock: false
-    })
-  },
+
+  // 角色
+
+  // 角色列表
   getRoleList (params) {
     return request({
-      url: '/roles/list',
-      method: 'get',
-      data: params,
-      mock: false
-    })
-  },
-  updatePermission (params) {
-    return request({
-      url: '/roles/update/permission',
+      url: '/role/list',
       method: 'post',
       data: params,
-      mock: false
-    })
-  },
-  getPermissionList () {
-    return request({
-      url: '/users/getPermissionList',
-      method: 'get',
-      data: {},
       mock: false
     })
   },
 
   // 新增部门
-  addDepartment (params) {
+  addRole (params) {
     return request({
-      url: '/department/',
+      url: '/role/',
       method: 'post',
       data: params,
       mock: false
     })
-  },
-  // 删除部门
-  deleteDepartment (id) {
-    return request({
-      url: '/department?id=' + id,
-      method: 'delete',
-      data: {},
-      mock: false
-    })
   }
-
 }

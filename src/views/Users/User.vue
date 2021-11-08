@@ -4,15 +4,16 @@
       <el-form
         ref="form"
         :inline="true"
-        :model="UserTableState.userSearch"
+        :model="stateData.userSearch"
         size="mini"
       >
         <el-form-item
           label="用户ID"
-          prop="userId"
+          prop="id"
         >
           <el-input
-            v-model="UserTableState.userSearch.userId"
+            v-model="stateData.userSearch.id"
+            type="number"
             placeholder="请输入用户ID"
             size="mini"
           />
@@ -22,7 +23,7 @@
           prop="userName"
         >
           <el-input
-            v-model="UserTableState.userSearch.userName"
+            v-model="stateData.userSearch.name"
             placeholder="请输入用户名称"
           />
         </el-form-item>
@@ -31,7 +32,7 @@
           prop="state"
         >
           <el-select
-            v-model="UserTableState.userSearch.state"
+            v-model="stateData.userSearch.state"
             placeholder="请选择"
           >
             <el-option
@@ -59,7 +60,7 @@
           >
             查询
           </el-button>
-          <el-button @click="handleReset('form')">
+          <el-button @click="handleReset">
             重置
           </el-button>
         </el-form-item>
@@ -83,7 +84,7 @@
         <!--        </el-button>-->
       </div>
       <el-table
-        :data="UserTableState.userTableList"
+        :data="stateData.userTableList"
         @selection-change="handleSelectionChange"
       >
         <el-table-column
@@ -91,7 +92,7 @@
           width="55"
         />
         <el-table-column
-          v-for="item in UserTableState.userTableColumns"
+          v-for="item in stateData.userTableColumns"
           :key="item.prop"
           :prop="item.prop"
           :label="item.label"
@@ -120,19 +121,21 @@
         class="pagination"
         background
         layout="prev, pager, next"
-        :total="UserTableState.pager.total"
-        :page-size="UserTableState.pager.pageSize"
+        :total="stateData.userSearch.total"
+        :page-size="stateData.userSearch.page_size"
+        :current-page="stateData.userSearch.page_index"
         @current-change="handleCurrentChange"
       />
     </div>
     <el-dialog
-      v-model="userAddState.showModal"
-      title="用户新增"
+      v-model="stateData.showModal"
+      :before-close="handleClose"
+      :title="stateData.action==='create'?'创建部门':'编辑部门'"
     >
       <el-form
-        :ref="userAddState.userAddStateRef"
-        :model="userAddState.userForm"
-        :rules="userAddState.rules"
+        :ref="stateData.userAddStateRef"
+        :model="stateData.userForm"
+        :rules="stateData.rules"
         label-width="300px"
         label-position="right"
         style="display: flex;flex-flow: column nowrap; justify-content: start;align-items: start;"
@@ -142,7 +145,7 @@
           prop="userName"
         >
           <el-input
-            v-model="userAddState.userForm.userName"
+            v-model="stateData.userForm.name"
             placeholder="请输入用户名称"
           />
         </el-form-item>
@@ -151,7 +154,7 @@
           prop="userEmail"
         >
           <el-input
-            v-model="userAddState.userForm.userEmail"
+            v-model="stateData.userForm.email"
             placeholder="请输入用户邮箱"
           />
         </el-form-item>
@@ -160,7 +163,7 @@
           prop="mobile"
         >
           <el-input
-            v-model="userAddState.userForm.mobile"
+            v-model="stateData.userForm.mobile"
             placeholder="请输入用户手机号"
           />
         </el-form-item>
@@ -169,7 +172,7 @@
           prop="job"
         >
           <el-input
-            v-model="userAddState.userForm.job"
+            v-model="stateData.userForm.job"
             placeholder="请输入岗位名称"
           />
         </el-form-item>
@@ -177,7 +180,7 @@
           label="状态"
           prop="state"
         >
-          <el-select v-model="userAddState.userForm.state">
+          <el-select v-model="stateData.userForm.state">
             <el-option
               :value="1"
               label="在职"
@@ -192,33 +195,33 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item
-          label="系统角色"
-          prop="roleList"
-        >
-          <el-select
-            v-model="userAddState.userForm.roleList"
-            placeholder="请选择用户系统角色"
-            multiple
-            style="width: 100%"
-          >
-            <el-option
-              v-for="role in userAddState.roleList"
-              :key="role._id"
-              :label="role.roleName"
-              :value="role._id"
-            />
-          </el-select>
-        </el-form-item>
+        <!--        <el-form-item-->
+        <!--          label="系统角色"-->
+        <!--          prop="roleList"-->
+        <!--        >-->
+        <!--          <el-select-->
+        <!--            v-model="stateData.userForm.role_id"-->
+        <!--            placeholder="请选择用户系统角色"-->
+        <!--            multiple-->
+        <!--            style="width: 100%"-->
+        <!--          >-->
+        <!--            <el-option-->
+        <!--              v-for="role in userAddstateData.roleList"-->
+        <!--              :key="role._id"-->
+        <!--              :label="role.roleName"-->
+        <!--              :value="role._id"-->
+        <!--            />-->
+        <!--          </el-select>-->
+        <!--        </el-form-item>-->
         <el-form-item
           label="部门"
-          prop="deptId"
+          prop="department_id"
         >
           <el-cascader
-            v-model="userAddState.userForm.deptId"
+            v-model="stateData.userForm.department_id"
             placeholder="请选择所属部门"
-            :options="userAddState.deptList"
-            :props="{ checkStrictly: true, value: '_id', label: 'deptName' }"
+            :options="stateData.deptList"
+            :props="{ checkStrictly: true,emitPath:false, value: 'id', label: 'department_name' }"
             clearable
             style="width: 100%"
           />
@@ -246,58 +249,146 @@ export default {
     //   获取Composition API 上下文对象
     const instance = getCurrentInstance()
 
+    const stateData = reactive({
+      action: 'create',
+      showModal: false,
+      userForm: {
+        name: '',
+        email: '',
+        mobile: '',
+        job: '',
+        state: '',
+        role_id: '',
+        department_id: '',
+        remark: '',
+        password: '123456'
+      },
+      userAddStateRef: 'userAddStateRef',
+      rules: {
+        name: [
+          { required: true, message: '请输入用户名称', trigger: 'blur' },
+          { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+        ],
+        email: [{ required: true, message: '请输入用户邮箱', trigger: 'blur' }],
+        mobile: [{ required: true, message: '请输入用户手机号', trigger: 'blur' }],
+        job: [{ required: true, message: '请输入岗位名称', trigger: 'blur' }],
+        state: [{ required: true, message: '请选择在职状态', trigger: 'change' }]
+        // deptId: [{ required: true, message: '请选择所在部门', trigger: 'change' }]
+        // desc: [{ required: true, message: '请填写活动形式', trigger: 'blur' }]
+      },
+      deptList: [],
+      roleList: [],
+      userSearch: {
+        id: 0,
+        name: '',
+        state: 0,
+        total: 0,
+        page_index: 1,
+        page_size: 1
+      },
+      // 用户列表
+      userTableList: [
+        {
+          state: 1,
+          role: '0',
+          role_id: 1,
+          department_id: 11,
+          id: 1000002,
+          name: 'admin',
+          email: 'admin@11.com',
+          createTime: '2021-01-17T13:32:06.381Z',
+          lastLoginTime: '2021-01-17T13:32:06.381Z',
+          __v: 0,
+          // job: '前端开发',
+          mobile: '1111111'
+        }
+      ],
+      // 定义动态表格-格式
+      userTableColumns: [
+        {
+          label: '用户ID',
+          prop: 'id',
+          formatter: (row) => {
+            return row.ID
+          }
+        },
+        {
+          label: '用户名',
+          prop: 'name',
+          formatter: (row) => {
+            return row.name
+          }
+        },
+        {
+          label: '用户邮箱',
+          prop: 'email',
+          formatter: (row) => {
+            return row.email
+          }
+        },
+        {
+          label: '用户角色',
+          prop: 'role_id',
+          formatter (row, column, value) {
+            return {
+              0: '管理员',
+              1: '普通用户'
+            }[value]
+          }
+        },
+        {
+          label: '用户状态',
+          prop: 'state',
+          formatter (row, column, value) {
+            return {
+              1: '在职',
+              2: '离职',
+              3: '试用期'
+            }[value]
+          }
+        },
+        {
+          label: '注册时间',
+          prop: 'createTime',
+          width: 180,
+          formatter: (row) => {
+            return moment(row.createTime).format('ll')
+          }
+        },
+        {
+          label: '最后登录时间',
+          prop: 'lastLoginTime',
+          width: 180,
+          formatter: (row) => {
+            return moment(row.lastLoginTime).format('ll')
+          }
+        }
+      ]
+    })
+
     const handleSelectionChange = () => {
 
     }
 
-    const { userAddState, handleCreate, handleReset, handleClose, handleSubmit, handleEdit } = userAddUserEffect(instance)
-    const { UserTableState, handleQuery, handleCurrentChange, handleDelete } = userUserTableList(instance)
+    const { handleCreate, handleReset, handleClose, handleSubmit, handleEdit } = userAddUserEffect(instance, stateData)
+    const { handleQuery, handleCurrentChange, handleDelete } = userUserTableList(instance, stateData)
 
     onMounted(() => {
       handleQuery()
     })
 
     return {
-      UserTableState, userAddState, handleCurrentChange, handleDelete, handleCreate, handleSelectionChange, handleQuery, handleReset, handleClose, handleSubmit, handleEdit
+      stateData, handleCurrentChange, handleDelete, handleCreate, handleSelectionChange, handleQuery, handleReset, handleClose, handleSubmit, handleEdit
     }
   }
 
 }
 
-function userAddUserEffect (instance) {
-  const userAddState = reactive({
-    action: '',
-    showModal: false,
-    userForm: {
-      userName: '',
-      userEmail: '',
-      mobile: '',
-      job: '',
-      state: '',
-      roleList: '',
-      deptId: ''
-    },
-    userAddStateRef: 'userAddStateRef',
-    rules: {
-      userName: [
-        { required: true, message: '请输入用户名称', trigger: 'blur' },
-        { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
-      ],
-      userEmail: [{ required: true, message: '请输入用户邮箱', trigger: 'blur' }],
-      mobile: [{ required: true, message: '请输入用户手机号', trigger: 'blur' }],
-      job: [{ required: true, message: '请输入岗位名称', trigger: 'blur' }],
-      state: [{ required: true, message: '请选择在职状态', trigger: 'change' }],
-      deptId: [{ required: true, message: '请选择所在部门', trigger: 'change' }]
-      // desc: [{ required: true, message: '请填写活动形式', trigger: 'blur' }]
-    },
-    deptList: [],
-    roleList: []
-  })
-
+function userAddUserEffect (instance, stateData) {
   // handleCreate
   const handleCreate = () => {
-    userAddState.action = 'create'
-    userAddState.showModal = true
+    stateData.action = 'create'
+    stateData.showModal = true
     // 获取部门列表
     getDeptList()
     // 获取角色列表
@@ -305,47 +396,41 @@ function userAddUserEffect (instance) {
   }
 
   const handleReset = () => {
-    userAddState.userForm = {
-      userName: '',
-      userEmail: '',
-      mobile: '',
-      job: '',
-      state: '',
-      roleList: '',
-      deptId: ''
+    stateData.userSearch = {
+      ...stateData.userSearch,
+      id: '',
+      name: '',
+      state: ''
     }
   }
 
   const getDeptList = async () => {
-    const list = await instance.proxy.$api.getDeptList(userAddState.action)
-    // const list = await api.getDeptList(userAddState.action)
-    console.log('list')
-    console.log(list)
-    console.log('list')
-    userAddState.deptList = list.data.data
+    const list = await instance.proxy.$api.getDeptTreeList(0)
+    stateData.deptList = list.data.data
   }
 
   // 角色列表查询
   const getRoleAllList = async () => {
-    const list = await instance.proxy.$api.getRoleAllList()
-    console.log('list')
-    console.log(list)
-    console.log('list')
-    userAddState.roleList = list.data.data
+    // const list = await instance.proxy.$api.getRoleAllList()
+    // console.log('list')
+    // console.log(list)
+    // console.log('list')
+    // stateData.roleList = list.data.data
   }
 
   // 关闭modal
   const handleClose = () => {
-    userAddState.userForm = {
+    stateData.userForm = {
       userName: '',
       userEmail: '',
       mobile: '',
       job: '',
       state: '',
-      roleList: '',
-      deptId: ''
+      role_id: 0,
+      department_id: 0,
+      remark: ''
     }
-    userAddState.showModal = false
+    stateData.showModal = false
   }
 
   // 提交代码
@@ -357,205 +442,71 @@ function userAddUserEffect (instance) {
         instance.proxy.$message.error('资料不完整，请先填写完整再提交')
         return false
       } else {
-        const params = toRaw(userAddState.userForm)
-        console.log('params')
-        console.log(params)
-        console.log('params')
+        const params = toRaw(stateData.userForm)
         // params.userEmail += '@imooc.com'
-        params.action = userAddState.action
-        await instance.proxy.$api.userSubmit(params)
-        userAddState.showModal = false
-        instance.proxy.$message.success('用户创建成功')
-        // handleReset("dialogForm");
-        handleReset()
-        // instance.proxy.$message.success('操作成功')
+        params.gender = params.gender || 1
+        params.role_id = params.role_id || 1
+        params.password = params.password || '123456'
+
+        if (stateData.action === 'create') {
+          await instance.proxy.$api.userSubmit(params)
+          stateData.showModal = false
+          handleReset()
+          instance.proxy.$message.success('用户创建成功')
+        } else if (stateData.action === 'edit') {
+          params.id = params.ID
+          params.remark = params.remark || ''
+          await instance.proxy.$api.adminUserUpdate(params)
+          stateData.showModal = false
+          handleReset()
+          instance.proxy.$message.success('用户修改成功')
+        }
       }
     })
   }
 
   // 编辑用户数据
   const handleEdit = (index, row) => {
-    console.log('index')
-    console.log(index)
-    console.log(row)
-    console.log(row)
-    console.log(row)
-    console.log('index')
-    userAddState.action = 'edit'
-    userAddState.showModal = true
+    stateData.action = 'edit'
+    stateData.showModal = true
     // 获取部门列表
     getDeptList()
     // 获取角色列表
     getRoleAllList()
     instance.proxy.$nextTick(() => {
-      Object.assign(userAddState.userForm, row)
+      Object.assign(stateData.userForm, row)
     })
   }
 
-  return { userAddState, handleCreate, handleReset, handleClose, handleSubmit, handleEdit }
+  return { handleCreate, handleReset, handleClose, handleSubmit, handleEdit }
 }
 
-function userUserTableList (instance) {
-  const UserTableState = reactive({
-    userSearch: {
-      userId: '',
-      userName: '',
-      state: ''
-    },
-    // 用户列表
-    userTableList: [
-      {
-        state: 1,
-        role: '0',
-        roleList: [
-          '1',
-          '2',
-          '3'
-        ],
-        deptId: [
-          '1', '2'
-        ],
-        userId: 1000002,
-        userName: 'admin',
-        userEmail: 'admin@11.com',
-        createTime: '2021-01-17T13:32:06.381Z',
-        lastLoginTime: '2021-01-17T13:32:06.381Z',
-        __v: 0,
-        // job: '前端开发',
-        mobile: '1111111'
-      }
-    ],
-    pager: {
-      pageNum: 1,
-      pageSize: 1,
-      total: 100
-    },
-    // 定义动态表格-格式
-    userTableColumns: [
-      {
-        label: '用户ID',
-        prop: 'userId',
-        formatter: (row) => {
-          return row.userId
-        }
-      },
-      {
-        label: '用户名',
-        prop: 'userName',
-        formatter: (row) => {
-          return row.userName
-        }
-      },
-      {
-        label: '用户邮箱',
-        prop: 'userEmail',
-        formatter: (row) => {
-          return row.userEmail
-        }
-      },
-      {
-        label: '用户角色',
-        prop: 'role',
-        formatter (row, column, value) {
-          return {
-            0: '管理员',
-            1: '普通用户'
-          }[value]
-        }
-      },
-      {
-        label: '用户状态',
-        prop: 'state',
-        formatter (row, column, value) {
-          return {
-            1: '在职',
-            2: '离职',
-            3: '试用期'
-          }[value]
-        }
-      },
-      {
-        label: '注册时间',
-        prop: 'createTime',
-        width: 180,
-        formatter: (row) => {
-          return moment(row.createTime).format('ll')
-        }
-      },
-      {
-        label: '最后登录时间',
-        prop: 'lastLoginTime',
-        width: 180,
-        formatter: (row) => {
-          return moment(row.lastLoginTime).format('ll')
-        }
-      }
-    ]
-  })
-
-  onMounted(() => {
-    console.log('init....')
-  })
-
+function userUserTableList (instance, stateData) {
   // 查询
   const handleQuery = () => {
     getUserList()
-    // const params = toRaw(UserTableState.userSearch)
-    // params.pageIndex = UserTableState.pager.pageNum
-    // params.pageSize = UserTableState.pager.pageSize
-    // console.log('userSearch')
-    // console.log(params)
-    // console.log('userSearch')
-    // const list = await instance.proxy.$api.getUserList(params)
-    // UserTableState.userTableList = list.data.data.list
-    // UserTableState.pager.total = list.data.data.page.total
   }
 
   const getUserList = async () => {
-    const params = toRaw(UserTableState.userSearch)
-    params.pageIndex = UserTableState.pager.pageNum
-    params.pageSize = UserTableState.pager.pageSize
-    console.log('userSearch')
-    console.log(params)
-    console.log('userSearch')
-    const list = await instance.proxy.$api.getUserList(params)
-    UserTableState.userTableList = list.data.data.list
-    UserTableState.pager.total = list.data.data.page.total
+    const params = toRaw(stateData.userSearch)
+    const list = await instance.proxy.$api.getAdminUserList(params)
+    stateData.userTableList = list.data.data.list
+    stateData.userSearch.total = list.data.data.total
   }
 
   // 分页事件处理
   const handleCurrentChange = async (current) => {
-    UserTableState.pager.pageNum = current
-
-    console.log('UserTableState.pager.pageNum')
-    console.log(UserTableState.pager.pageNum)
-    console.log('UserTableState.pager.pageNum')
-
-    const params = toRaw(UserTableState.userSearch)
-    params.pageIndex = current
-    params.pageSize = UserTableState.pager.pageSize
-    console.log('userSearch')
-    console.log(params)
-
-    console.log('userSearch')
-    const list = await instance.proxy.$api.getUserList(params)
-    UserTableState.userTableList = list.data.data.list
-    UserTableState.pager.total = list.data.data.page.total
-    // getUserList()
+    stateData.userSearch.page_index = current
+    getUserList()
   }
 
   const handleDelete = async (index, row) => {
-    console.log('row')
-    console.log(row)
-    console.log('row')
-    await instance.proxy.$api.userDel({
-      userIds: [row.userId] // 可单个删除，也可批量删除
-    })
+    await instance.proxy.$api.adminDel(row.ID)
     instance.proxy.$message.success('删除成功')
     getUserList()
   }
 
-  return { UserTableState, handleQuery, handleCurrentChange, handleDelete }
+  return { handleQuery, handleCurrentChange, handleDelete }
 }
 </script>
 
