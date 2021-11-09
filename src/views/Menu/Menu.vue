@@ -4,7 +4,7 @@
       <el-form
         ref="queryForm"
         :inline="true"
-        :model="state.queryForm"
+        :model="stateData.queryForm"
         size="mini"
       >
         <el-form-item
@@ -12,7 +12,7 @@
           prop="menuName"
         >
           <el-input
-            v-model="state.queryForm.menuName"
+            v-model="stateData.queryForm.name"
             placeholder="请输入菜单名称"
             size="mini"
           />
@@ -22,9 +22,13 @@
           prop="state"
         >
           <el-select
-            v-model="state.queryForm.menuState"
+            v-model="stateData.queryForm.state"
             placeholder="请选择"
           >
+            <el-option
+              :value="0"
+              label="请选择"
+            />
             <el-option
               :value="1"
               label="正常"
@@ -68,7 +72,7 @@
         <!--        </el-button>-->
       </div>
       <el-table
-        :data="state.menuList"
+        :data="stateData.menuList"
         row-key="_id"
         @selection-change="handleSelectionChange"
       >
@@ -77,7 +81,7 @@
           width="55"
         />
         <el-table-column
-          v-for="item in state.columns"
+          v-for="item in stateData.columns"
           :key="item.prop"
           :prop="item.prop"
           :label="item.label"
@@ -94,7 +98,10 @@
         <!--          prop="updateTime"-->
         <!--          :formatter="formatterTime"-->
         <!--        />-->
-        <el-table-column label="操作" width="300px">
+        <el-table-column
+          label="操作"
+          width="300px"
+        >
           <template #default="scope">
             <el-button
               size="mini"
@@ -113,43 +120,52 @@
             <el-button
               size="mini"
               type="danger"
-              @click="handleDelete(scope.row._id)"
+              @click="handleDelete(scope.row.ID)"
             >
               删除
             </el-button>
           </template>
         </el-table-column>
       </el-table>
+      <el-pagination
+        style="text-align: right;margin: 10px 10px 0 0"
+        class="pagination"
+        background
+        layout="prev, pager, next"
+        :total="stateData.queryForm.total"
+        :page-size="stateData.queryForm.page_size"
+        @current-change="handleCurrentChange"
+      />
     </div>
 
     <el-dialog
-      v-model="state.showModal"
-      title="用户新增"
+      v-model="stateData.showModal"
+      :title="stateData.action ==='create'? '新增菜单':'编辑菜单'"
       :before-close="handleClose"
     >
       <el-form
         ref="menuForm"
-        :model="state.menuForm"
+        :model="stateData.menuForm"
         label-width="100px"
-        :rules="state.addMenuRules"
+        :rules="stateData.addMenuRules"
       >
-        <el-form-item
-          label="父级菜单"
-          prop="parentId"
-        >
-          <el-cascader
-            v-model="state.menuForm.parentId"
-            :options="state.menuList"
-            :props="{ checkStrictly: true, value: '_id', label: 'menuName' }"
-            clearable
-          />
-          <span>不选，则直接创建一级菜单</span>
-        </el-form-item>
+        <!--        <el-form-item-->
+        <!--          label="父级菜单"-->
+        <!--          prop="parent_id"-->
+        <!--        >-->
+        <!--          <el-cascader-->
+        <!--            v-model="stateData.menuForm.parent_id"-->
+        <!--            :options="stateData.menuList"-->
+        <!--            :props="{ checkStrictly: true, value: 'id', label: 'name' }"-->
+        <!--            clearable-->
+        <!--          />-->
+        <!--          <span>不选，则直接创建一级菜单</span>-->
+        <!--        </el-form-item>-->
         <el-form-item
           label="菜单类型"
           prop="menuType"
         >
-          <el-radio-group v-model="state.menuForm.menuType">
+          <el-radio-group v-model="stateData.menuForm.type">
             <el-radio :label="1">
               菜单
             </el-radio>
@@ -163,56 +179,56 @@
           prop="menuName"
         >
           <el-input
-            v-model="state.menuForm.menuName"
+            v-model="stateData.menuForm.name"
             placeholder="请输入菜单名称"
           />
         </el-form-item>
         <el-form-item
-          v-show="state.menuForm.menuType == 1"
+          v-show="stateData.menuForm.type == 1"
           label="菜单图标"
           prop="icon"
         >
           <el-input
-            v-model="state.menuForm.icon"
+            v-model="stateData.menuForm.icon"
             placeholder="请输入岗位"
           />
         </el-form-item>
         <el-form-item
-          v-show="state.menuForm.menuType == 1"
+          v-show="stateData.menuForm.type == 1"
           label="路由地址"
           prop="path"
         >
           <el-input
-            v-model="state.menuForm.path"
+            v-model="stateData.menuForm.path"
             placeholder="请输入路由地址"
           />
         </el-form-item>
         <el-form-item
-          v-show="state.menuForm.menuType == 2"
+          v-show="stateData.menuForm.type == 2"
           label="权限标识"
           prop="menuCode"
         >
           <el-input
-            v-model="state.menuForm.menuCode"
+            v-model="stateData.menuForm.code"
             placeholder="请输入权限标识"
           />
         </el-form-item>
         <el-form-item
-          v-show="state.menuForm.menuType == 1"
+          v-show="stateData.menuForm.type == 1"
           label="组件路径"
           prop="component"
         >
           <el-input
-            v-model="state.menuForm.component"
+            v-model="stateData.menuForm.component"
             placeholder="请输入组件路径"
           />
         </el-form-item>
         <el-form-item
-          v-show="state.menuForm.menuType == 1"
+          v-show="stateData.menuForm.type == 1"
           label="菜单状态"
           prop="menuState"
         >
-          <el-radio-group v-model="state.menuForm.menuState">
+          <el-radio-group v-model="stateData.menuForm.state">
             <el-radio :label="1">
               正常
             </el-radio>
@@ -243,16 +259,20 @@ export default {
   name: 'Menu',
   setup () {
     const instance = getCurrentInstance()
-    const state = reactive({
+    const stateData = reactive({
+      action: 'create',
       queryForm: {
-        menuName: '',
-        menuState: ''
+        name: '',
+        state: 0,
+        total: 0,
+        page_index: 1,
+        page_size: 1
       },
       SearchMenuList: [],
       columns: [
         {
           label: '菜单名称',
-          prop: 'menuName',
+          prop: 'name',
           width: 150
         },
         {
@@ -261,7 +281,7 @@ export default {
         },
         {
           label: '菜单类型',
-          prop: 'menuType',
+          prop: 'type',
           formatter (row, column, value) {
             return {
               1: '菜单',
@@ -271,7 +291,7 @@ export default {
         },
         {
           label: '权限标识',
-          prop: 'menuCode'
+          prop: 'code'
         },
         {
           label: '路由地址',
@@ -283,7 +303,7 @@ export default {
         },
         {
           label: '菜单状态',
-          prop: 'menuState',
+          prop: 'state',
           width: 90,
           formatter (row, column, value) {
             return {
@@ -301,18 +321,18 @@ export default {
         }
       ],
       menuForm: {
-        parentId: [null],
-        menuName: '',
-        menuType: 1,
-        menuState: 1,
+        parent_id: 0,
+        name: '',
+        type: 1,
+        state: 1,
         icon: '',
         path: '',
-        menuCode: '',
+        code: '',
         component: ''
       },
       showModal: false,
       addMenuRules: {
-        menuName: [
+        name: [
           {
             required: true,
             message: '请输入菜单名称',
@@ -329,90 +349,138 @@ export default {
       menuList: []
     })
 
-    const { handleQueryMenu, handleReset, handleSelectionChange, handleDelete, getMenuList } = useMenuTableList(state, instance)
-    const { handleClose, handleSubmit, handleCreate, handleEdit, handleAdd } = useAddMenu(state, instance)
+    const {
+      handleCurrentChange,
+      handleQueryMenu,
+      handleReset,
+      handleSelectionChange,
+      handleDelete,
+      getMenuList
+    } = useMenuTableList(stateData, instance)
+    const {
+      handleClose,
+      handleSubmit,
+      handleCreate,
+      handleEdit,
+      handleAdd
+    } = useAddMenu(stateData, instance)
 
     onMounted(() => {
       getMenuList()
     })
-    return { state, handleSelectionChange, handleDelete, handleQueryMenu, handleReset, handleClose, handleSubmit, handleCreate, handleEdit, handleAdd }
+    return {
+      stateData,
+      handleSelectionChange,
+      handleDelete,
+      handleQueryMenu,
+      handleCurrentChange,
+      handleReset,
+      handleClose,
+      handleSubmit,
+      handleCreate,
+      handleEdit,
+      handleAdd
+    }
   }
 
 }
 
-function useAddMenu (state, instance) {
+function useAddMenu (stateData, instance) {
   const handleCreate = async () => {
-    state.showModal = true
-    state.action = 'create'
-
-    const list = await instance.proxy.$api.getMenuList(state.queryForm)
-    state.menuList = list.data.data
+    stateData.showModal = true
+    stateData.action = 'create'
+    console.log('stateData.showModal')
+    //
+    // const list = await instance.proxy.$api.getMenuList(stateData.queryForm)
+    // stateData.menuList = list.data.data
   }
   const handleSubmit = () => {
-    console.log('state.menuForm')
-    console.log(state.menuForm)
-    console.log('state.menuForm')
+    console.log('stateData.menuForm')
+    console.log(stateData.menuForm)
+    console.log('stateData.menuForm')
     instance.proxy.$refs.menuForm.validate(async (valid) => {
       if (valid) {
-        const params = toRaw(state.menuForm)
-        params.action = state.action
-        await instance.proxy.$api.menuSubmit(params)
-        state.showModal = false
-        instance.proxy.$message.success('操作成功')
-        state.menuForm = {
-          parentId: [null],
-          menuName: '',
-          menuType: 1,
-          menuState: 1,
-          icon: '',
-          path: '',
-          menuCode: '',
-          component: ''
+        const params = toRaw(stateData.menuForm)
+        params.action = stateData.action
+
+        if (stateData.action === 'create') {
+          await instance.proxy.$api.addMenu(params)
+          stateData.showModal = false
+          instance.proxy.$message.success('操作成功')
+          stateData.menuForm = {
+            parent_id: 0,
+            name: '',
+            type: 1,
+            state: 1,
+            icon: '',
+            path: '',
+            code: '',
+            component: ''
+          }
+          // this.getMenuList()
+        } else if (stateData.action === 'edit') {
+          await instance.proxy.$api.updateMenu(params)
+          stateData.showModal = false
+          instance.proxy.$message.success('操作成功')
+          stateData.menuForm = {
+            parent_id: 0,
+            name: '',
+            type: 1,
+            state: 1,
+            icon: '',
+            path: '',
+            code: '',
+            component: ''
+          }
+          // this.getMenuList()
         }
-        // this.getMenuList()
       }
     })
   }
 
   const handleClose = () => {
-    state.showModal = false
-    state.action = false
-    state.menuForm = {
-      parentId: [null],
-      menuName: '',
-      menuType: 1,
-      menuState: 1,
+    stateData.showModal = false
+    stateData.action = false
+    stateData.menuForm = {
+      parent_id: 0,
+      name: '',
+      type: 1,
+      state: 1,
       icon: '',
       path: '',
-      menuCode: '',
+      code: '',
       component: ''
     }
   }
 
   const handleAdd = (row) => {
-    state.showModal = true
-    state.action = 'create'
-    state.menuForm.parentId = [...row.parentId, row._id].filter(
-      (item) => item
-    )
-    // state.showModal = true
-    // state.action = 'edit'
-    // instance.proxy.$nextTick(() => {
-    //   Object.assign(state.menuForm, row)
-    // })
+    stateData.showModal = true
+    stateData.action = 'create'
+    stateData.menuForm = {
+      ...stateData.menuForm,
+      parent_id: row.ID
+    }
   }
   const handleEdit = (row) => {
-    state.showModal = true
-    state.action = 'edit'
+    stateData.showModal = true
+    stateData.action = 'edit'
     instance.proxy.$nextTick(() => {
-      Object.assign(state.menuForm, row)
+      Object.assign(stateData.menuForm, row, {
+        id: row.ID
+      })
     })
   }
 
-  return { handleClose, handleSubmit, handleCreate, handleEdit, handleAdd }
+  return {
+    handleClose,
+    handleSubmit,
+    handleCreate,
+    handleEdit,
+    handleAdd
+  }
 }
 
-function useMenuTableList (state, instance) {
+function useMenuTableList (stateData, instance) {
   const handleSelectionChange = () => {
 
   }
@@ -420,35 +488,50 @@ function useMenuTableList (state, instance) {
   const handleQueryMenu = () => {
     getMenuList()
   }
-  const handleDelete = async (_id) => {
-    await instance.proxy.$api.menuSubmit({ _id, action: 'delete' })
+  const handleDelete = async (id) => {
+    await instance.proxy.$api.deleteMenu(id)
     instance.proxy.$message.success('删除成功')
     getMenuList()
   }
 
+  const handleCurrentChange = (current) => {
+    stateData.queryForm.page_index = current
+    getMenuList()
+  }
+
   const handleReset = () => {
-    state.queryForm = {
-      menuName: '',
-      state: ''
+    stateData.queryForm = {
+      ...stateData.queryForm,
+      name: '',
+      state: 0
     }
   }
 
   // 菜单列表初始化
   const getMenuList = async () => {
     try {
-      const list = await instance.proxy.$api.getMenuList(state.queryForm)
-      state.menuList = list.data.data
+      const list = await instance.proxy.$api.getMenuList(stateData.queryForm)
+      stateData.menuList = list.data.data.list
+      stateData.queryForm.total = list.data.data.total
     } catch (e) {
       throw new Error(e)
     }
   }
 
-  return { handleQueryMenu, handleReset, handleSelectionChange, handleDelete, getMenuList }
+  return {
+    handleCurrentChange,
+    handleQueryMenu,
+    handleReset,
+    handleSelectionChange,
+    handleDelete,
+    getMenuList
+  }
 }
 </script>
 
 <style lang="scss">
-.menu-main{
+
+.menu-main {
     width: 100%;
     height: 100%;
     display: flex;
@@ -456,16 +539,21 @@ function useMenuTableList (state, instance) {
     justify-content: start;
     align-items: center;
     background-color: #eef0f3;
-    .menu-query-form{
+
+    .menu-query-form {
         width: 100%;
         height: 41px;
         background-color: white;
         margin-bottom: 20px;
         //border: 1px solid red;
         padding: 5px;
+
+        ::v-deep(.el-input__inner) {
+            color: rebeccapurple;
+        }
     }
 
-    .menu-table{
+    .menu-table {
         height: 100%;
         width: 100%;
         background-color: white;

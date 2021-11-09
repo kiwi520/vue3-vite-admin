@@ -77,7 +77,7 @@
             <el-button
               type="danger"
               size="mini"
-              @click="handleDel(scope.row._id)"
+              @click="handleDel(scope.row.ID)"
             >
               删除
             </el-button>
@@ -89,8 +89,8 @@
         class="pagination"
         background
         layout="prev, pager, next"
-        :total="state.pager.total"
-        :page-size="state.pager.pageSize"
+        :total="state.queryForm.total"
+        :page-size="state.queryForm.page_size"
         @current-change="handleCurrentChange"
       />
     </div>
@@ -203,20 +203,20 @@ export default {
       columns: [
         {
           label: '角色名称',
-          prop: 'roleName'
+          prop: 'role_name'
         },
         {
           label: '备注',
           prop: 'remark'
         },
-        {
-          label: '权限列表',
-          prop: 'permissionList',
-          width: 200,
-          formatter: (row) => {
-            return row.menuList.map(item => item.menuName).join('、')
-          }
-        },
+        // {
+        //   label: '权限列表',
+        //   prop: 'permissionList',
+        //   width: 200,
+        //   formatter: (row) => {
+        //     return row.menuList.map(item => item.menuName).join('、')
+        //   }
+        // },
         {
           label: '更新时间',
           prop: 'updateTime',
@@ -240,7 +240,7 @@ export default {
     })
 
     onMounted(() => {
-      // getRoleList()
+      handleQuery()
       // getMenuList()
     })
     const { handleRoleFormCreate, handleRoleFormClose, handleRoleFormSubmit } = useAddRoleEffect(state, instance)
@@ -271,10 +271,21 @@ function useAddRoleEffect (state, instance) {
     console.log(params)
     console.log('data')
 
-    await instance.proxy.$api.addRole(params)
-    state.roleFormShowModal = false
-    handleRoleFormReset()
-    instance.proxy.$message.success('添加角色成功')
+    console.log(state.action)
+    console.log(state.action)
+    console.log(state.action)
+
+    if (state.action === 'create') {
+      await instance.proxy.$api.addRole(params)
+      state.roleFormShowModal = false
+      handleRoleFormReset()
+      instance.proxy.$message.success('添加角色成功')
+    } else if (state.action === 'edit') {
+      await instance.proxy.$api.updateRole(params)
+      state.roleFormShowModal = false
+      handleRoleFormReset()
+      instance.proxy.$message.success('修改角色成功')
+    }
   }
 
   const handleRoleFormReset = () => {
@@ -362,14 +373,23 @@ function useRoleTableEffect (state, instance) {
   }
 
   const getRoleList = async () => {
-    // const params = toRaw(state.queryForm)
+    const params = toRaw(state.queryForm)
+
+    console.log('params')
+    console.log(params)
+    console.log('params')
     // params.pageIndex = state.pager.pageNum
     // params.pageSize = state.pager.pageSize
     // console.log('userSearch')
     // console.log(params)
     // console.log('userSearch')
-    // const list = await instance.proxy.$api.getRoleList(params)
-    // state.roleList = list ? list.data.data.list : []
+    const { data: { data: { list, total } } } = await instance.proxy.$api.getRoleList(params)
+
+    console.log('list')
+    console.log(list)
+    console.log('list')
+    state.roleList = list || []
+    state.queryForm.total = total || 0
     // getActionMap(list.data.data.list)
     // state.pager.total = list.data.data.page.total
   }
@@ -395,9 +415,11 @@ function useRoleTableEffect (state, instance) {
   //   state.actionMap = actionMap
   // }
 
-  const handleCurrentChange = () => {
+  const handleCurrentChange = (current) => {
     console.log('dddd')
     console.log(state.pager)
+    state.queryForm.page_index = current
+    getRoleList()
   }
 
   const handleReset = () => {
@@ -410,20 +432,24 @@ function useRoleTableEffect (state, instance) {
   }
 
   const handleEdit = (row) => {
-    state.roleFormAction = 'edit'
+    state.action = 'edit'
     state.roleFormShowModal = true
+
+    console.log(row)
+    console.log(row)
+    console.log(row)
 
     instance.proxy.$nextTick(() => {
       state.roleFormRoleForm = {
-        _id: row._id,
-        roleName: row.roleName,
+        id: row.ID,
+        role_name: row.role_name,
         remark: row.remark
       }
     })
   }
 
-  const handleDel = async (_id) => {
-    await instance.proxy.$api.roleOperate({ _id, action: 'delete' })
+  const handleDel = async (id) => {
+    await instance.proxy.$api.deleteRole(id)
     instance.proxy.$message.success('删除成功')
     getRoleList()
   }

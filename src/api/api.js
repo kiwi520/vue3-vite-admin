@@ -46,24 +46,6 @@ export default {
       data: params
     })
   },
-  menuSubmit (params) {
-    return request({
-      url: '/menu/operate',
-      method: 'post',
-      data: params,
-      mock: false
-    })
-  },
-
-  getMenuList (params) {
-    return request({
-      url: '/menu/list',
-      method: 'get',
-      data: params,
-      mock: false
-    })
-  },
-
   roleOperate (params) {
     return request({
       url: '/roles/operate',
@@ -180,12 +162,70 @@ export default {
     })
   },
 
-  // 新增部门
+  // 新增角色
   addRole (params) {
     return request({
       url: '/role/',
       method: 'post',
       data: params,
+      mock: false
+    })
+  },
+  // 新增角色
+  updateRole (params) {
+    return request({
+      url: '/role/',
+      method: 'put',
+      data: params,
+      mock: false
+    })
+  },
+  // 删除角色
+  deleteRole (params) {
+    return request({
+      url: '/role?id=' + params,
+      method: 'delete',
+      data: {},
+      mock: false
+    })
+  },
+
+  // 菜单
+
+  // 新增菜单
+  addMenu (params) {
+    return request({
+      url: '/menu',
+      method: 'post',
+      data: params,
+      mock: false
+    })
+  },
+
+  // 新增菜单
+  updateMenu (params) {
+    return request({
+      url: '/menu',
+      method: 'put',
+      data: params,
+      mock: false
+    })
+  },
+
+  getMenuList (params) {
+    return request({
+      url: '/menu/list',
+      method: 'post',
+      data: params,
+      mock: false
+    })
+  },
+  // 删除角色
+  deleteMenu (params) {
+    return request({
+      url: '/menu?id=' + params,
+      method: 'delete',
+      data: {},
       mock: false
     })
   }

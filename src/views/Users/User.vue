@@ -536,7 +536,7 @@ function userUserTableList (instance, stateData) {
         height: 100%;
         width: 100%;
         background-color: white;
-        border: 1px saddlebrown solid;
+        //border: 1px saddlebrown solid;
         .action {
             border-radius: 5px;
             background: #ffffff;
