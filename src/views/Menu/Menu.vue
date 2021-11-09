@@ -72,7 +72,7 @@
         <!--        </el-button>-->
       </div>
       <el-table
-        :data="stateData.menuList"
+        :data="stateData.SearchMenuList"
         row-key="_id"
         @selection-change="handleSelectionChange"
       >
@@ -149,18 +149,18 @@
         label-width="100px"
         :rules="stateData.addMenuRules"
       >
-        <!--        <el-form-item-->
-        <!--          label="父级菜单"-->
-        <!--          prop="parent_id"-->
-        <!--        >-->
-        <!--          <el-cascader-->
-        <!--            v-model="stateData.menuForm.parent_id"-->
-        <!--            :options="stateData.menuList"-->
-        <!--            :props="{ checkStrictly: true, value: 'id', label: 'name' }"-->
-        <!--            clearable-->
-        <!--          />-->
-        <!--          <span>不选，则直接创建一级菜单</span>-->
-        <!--        </el-form-item>-->
+        <el-form-item
+          label="父级菜单"
+          prop="parent_id"
+        >
+          <el-cascader
+            v-model="stateData.menuForm.parent_id"
+            :options="stateData.menuList"
+            :props="{ checkStrictly: true,emitPath:false, value: 'id', label: 'name' }"
+            clearable
+          />
+          <span>不选，则直接创建一级菜单</span>
+        </el-form-item>
         <el-form-item
           label="菜单类型"
           prop="menuType"
@@ -266,7 +266,7 @@ export default {
         state: 0,
         total: 0,
         page_index: 1,
-        page_size: 1
+        page_size: 10
       },
       SearchMenuList: [],
       columns: [
@@ -389,15 +389,11 @@ function useAddMenu (stateData, instance) {
   const handleCreate = async () => {
     stateData.showModal = true
     stateData.action = 'create'
-    console.log('stateData.showModal')
     //
-    // const list = await instance.proxy.$api.getMenuList(stateData.queryForm)
-    // stateData.menuList = list.data.data
+    const list = await instance.proxy.$api.getMenuTreeList(0)
+    stateData.menuList = list.data.data
   }
   const handleSubmit = () => {
-    console.log('stateData.menuForm')
-    console.log(stateData.menuForm)
-    console.log('stateData.menuForm')
     instance.proxy.$refs.menuForm.validate(async (valid) => {
       if (valid) {
         const params = toRaw(stateData.menuForm)
@@ -417,7 +413,7 @@ function useAddMenu (stateData, instance) {
             code: '',
             component: ''
           }
-          // this.getMenuList()
+          this.getMenuList()
         } else if (stateData.action === 'edit') {
           await instance.proxy.$api.updateMenu(params)
           stateData.showModal = false
@@ -432,7 +428,7 @@ function useAddMenu (stateData, instance) {
             code: '',
             component: ''
           }
-          // this.getMenuList()
+          this.getMenuList()
         }
       }
     })
@@ -461,7 +457,7 @@ function useAddMenu (stateData, instance) {
       parent_id: row.ID
     }
   }
-  const handleEdit = (row) => {
+  const handleEdit = async (row) => {
     stateData.showModal = true
     stateData.action = 'edit'
     instance.proxy.$nextTick(() => {
@@ -469,6 +465,8 @@ function useAddMenu (stateData, instance) {
         id: row.ID
       })
     })
+    const list = await instance.proxy.$api.getMenuTreeList(0)
+    stateData.menuList = list.data.data
   }
 
   return {
@@ -511,7 +509,7 @@ function useMenuTableList (stateData, instance) {
   const getMenuList = async () => {
     try {
       const list = await instance.proxy.$api.getMenuList(stateData.queryForm)
-      stateData.menuList = list.data.data.list
+      stateData.SearchMenuList = list.data.data.list
       stateData.queryForm.total = list.data.data.total
     } catch (e) {
       throw new Error(e)

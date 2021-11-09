@@ -8,17 +8,6 @@
         size="mini"
       >
         <el-form-item
-          label="用户ID"
-          prop="id"
-        >
-          <el-input
-            v-model="stateData.userSearch.id"
-            type="number"
-            placeholder="请输入用户ID"
-            size="mini"
-          />
-        </el-form-item>
-        <el-form-item
           label="用户名称"
           prop="userName"
         >
@@ -195,24 +184,23 @@
             />
           </el-select>
         </el-form-item>
-        <!--        <el-form-item-->
-        <!--          label="系统角色"-->
-        <!--          prop="roleList"-->
-        <!--        >-->
-        <!--          <el-select-->
-        <!--            v-model="stateData.userForm.role_id"-->
-        <!--            placeholder="请选择用户系统角色"-->
-        <!--            multiple-->
-        <!--            style="width: 100%"-->
-        <!--          >-->
-        <!--            <el-option-->
-        <!--              v-for="role in userAddstateData.roleList"-->
-        <!--              :key="role._id"-->
-        <!--              :label="role.roleName"-->
-        <!--              :value="role._id"-->
-        <!--            />-->
-        <!--          </el-select>-->
-        <!--        </el-form-item>-->
+        <el-form-item
+          label="系统角色"
+          prop="roleList"
+        >
+          <el-select
+            v-model="stateData.userForm.role_id"
+            placeholder="请选择用户系统角色"
+            style="width: 100%"
+          >
+            <el-option
+              v-for="role in stateData.roleList"
+              :key="role.ID"
+              :label="role.role_name"
+              :value="role.ID"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item
           label="部门"
           prop="department_id"
@@ -279,7 +267,6 @@ export default {
       deptList: [],
       roleList: [],
       userSearch: {
-        id: 0,
         name: '',
         state: 0,
         total: 0,
@@ -398,7 +385,6 @@ function userAddUserEffect (instance, stateData) {
   const handleReset = () => {
     stateData.userSearch = {
       ...stateData.userSearch,
-      id: '',
       name: '',
       state: ''
     }
@@ -411,11 +397,11 @@ function userAddUserEffect (instance, stateData) {
 
   // 角色列表查询
   const getRoleAllList = async () => {
-    // const list = await instance.proxy.$api.getRoleAllList()
-    // console.log('list')
-    // console.log(list)
-    // console.log('list')
-    // stateData.roleList = list.data.data
+    const list = await instance.proxy.$api.getRoleAllList()
+    console.log('list')
+    console.log(list)
+    console.log('list')
+    stateData.roleList = list.data.data
   }
 
   // 关闭modal

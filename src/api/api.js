@@ -23,15 +23,6 @@ export default {
       mock: false
     })
   },
-
-  getRoleAllList () {
-    return request({
-      url: '/roles/allList',
-      method: 'get',
-      data: {},
-      mock: false
-    })
-  },
   getUserList (params) {
     return request({
       url: '/user/list',
@@ -161,6 +152,14 @@ export default {
       mock: false
     })
   },
+  getRoleAllList () {
+    return request({
+      url: '/role/all',
+      method: 'get',
+      data: {},
+      mock: false
+    })
+  },
 
   // 新增角色
   addRole (params) {
@@ -220,7 +219,17 @@ export default {
       mock: false
     })
   },
-  // 删除角色
+
+  getMenuTreeList (params) {
+    return request({
+      url: '/menu/tree?pid=' + params,
+      method: 'get',
+      data: { },
+      mock: false
+    })
+  },
+
+  // 删除菜单
   deleteMenu (params) {
     return request({
       url: '/menu?id=' + params,
