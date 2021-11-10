@@ -170,10 +170,18 @@ export default {
       mock: false
     })
   },
-  // 新增角色
+  // 编辑角色
   updateRole (params) {
     return request({
       url: '/role/',
+      method: 'put',
+      data: params,
+      mock: false
+    })
+  }, // 编辑角色权限
+  updateRolePermission (params) {
+    return request({
+      url: '/role/setPermission',
       method: 'put',
       data: params,
       mock: false

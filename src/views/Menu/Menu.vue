@@ -449,13 +449,18 @@ function useAddMenu (stateData, instance) {
     }
   }
 
-  const handleAdd = (row) => {
+  const handleAdd = async (row) => {
     stateData.showModal = true
     stateData.action = 'create'
-    stateData.menuForm = {
-      ...stateData.menuForm,
-      parent_id: row.ID
-    }
+    const list = await instance.proxy.$api.getMenuTreeList(0)
+    stateData.menuList = list.data.data
+
+    instance.proxy.$nextTick(() => {
+      stateData.menuForm = {
+        ...stateData.menuForm,
+        parent_id: row.ID
+      }
+    })
   }
   const handleEdit = async (row) => {
     stateData.showModal = true

@@ -144,16 +144,17 @@
     >
       <el-form label-width="100px">
         <el-form-item label="角色名称">
-          {{ state.currentRoleName }}
+          {{ state.permission.role_name }}
         </el-form-item>
         <el-form-item label="选择权限">
           <el-tree
             ref="permissionTree"
             :data="state.menuList"
             show-checkbox
-            node-key="_id"
+            node-key="id"
             default-expand-all
-            :props="{ label: 'menuName' }"
+            :default-checked-keys="state.permission.permission_list"
+            :props="{ label: 'name' }"
           />
         </el-form-item>
       </el-form>
@@ -209,14 +210,6 @@ export default {
           label: '备注',
           prop: 'remark'
         },
-        // {
-        //   label: '权限列表',
-        //   prop: 'permissionList',
-        //   width: 200,
-        //   formatter: (row) => {
-        //     return row.menuList.map(item => item.menuName).join('、')
-        //   }
-        // },
         {
           label: '更新时间',
           prop: 'updateTime',
@@ -233,19 +226,24 @@ export default {
         }
       ],
       permissionShowModal: false,
-      currentRoleName: '',
-      currentRoleId: '',
+      permission: {
+        role_id: 0,
+        role_name: '',
+        permission_list: []
+      },
+      // currentRoleName: '',
+      // currentRoleId: '',
       menuList: [],
       actionMap: []
     })
 
     onMounted(() => {
       handleQuery()
-      // getMenuList()
+      getMenuList()
     })
     const { handleRoleFormCreate, handleRoleFormClose, handleRoleFormSubmit } = useAddRoleEffect(state, instance)
-    // const { handleOpenPermission, handlePermissionSubmit, permissionCloseModal, getMenuList } = useSetPermission(state, instance)
-    const { handleOpenPermission, handlePermissionSubmit, permissionCloseModal } = useSetPermission(state, instance)
+    const { handleOpenPermission, handlePermissionSubmit, permissionCloseModal, getMenuList } = useSetPermission(state, instance)
+    // const { handleOpenPermission, handlePermissionSubmit, permissionCloseModal } = useSetPermission(state, instance)
     // const { handleQuery, handleReset, handleCurrentChange, getRoleList, handleEdit, handleDel } = useRoleTableEffect(state, instance)
     const { handleQuery, handleReset, handleCurrentChange, handleEdit, handleDel } = useRoleTableEffect(state, instance)
 
@@ -263,17 +261,8 @@ function useAddRoleEffect (state, instance) {
     handleRoleFormReset()
   }
   const handleRoleFormSubmit = async () => {
-    const data = state.roleFormRoleForm
     const params = toRaw(state.roleFormRoleForm)
     params.action = state.roleFormAction
-    console.log('data')
-    console.log(data)
-    console.log(params)
-    console.log('data')
-
-    console.log(state.action)
-    console.log(state.action)
-    console.log(state.action)
 
     if (state.action === 'create') {
       await instance.proxy.$api.addRole(params)
@@ -301,67 +290,40 @@ function useAddRoleEffect (state, instance) {
 function useSetPermission (state, instance) {
   const handleOpenPermission = (row) => {
     state.permissionShowModal = true
-    state.currentRoleName = row.roleName
-    state.currentRoleId = row._id
-    const { checkedKeys } = row.permissionList
-
-    instance.proxy.$nextTick(() => {
-      instance.proxy.$refs.permissionTree.setCheckedKeys(checkedKeys)
-    })
+    state.permission.permission_list = row.permission.split(',') || []
+    state.permission.role_name = row.role_name
+    state.permission.role_id = row.ID
   }
 
   const handlePermissionSubmit = async () => {
-    const checkedKeys = instance.proxy.$refs.permissionTree.getCheckedKeys()
-    console.log('checkedKeys')
-    console.log(checkedKeys)
-    console.log('checkedKeys')
-    const nodes = instance.proxy.$refs.permissionTree.getCheckedNodes()
-    const halfKeys = instance.proxy.$refs.permissionTree.getHalfCheckedKeys()
-    console.log('nodes')
-    console.log(nodes)
-    console.log('nodes')
-    console.log('halfKeys')
-    console.log(halfKeys)
-    console.log('halfKeys')
+    const getHalfCheckedKeys = instance.proxy.$refs.permissionTree.getHalfCheckedKeys()
+    const getCheckedKeys = instance.proxy.$refs.permissionTree.getCheckedKeys()
 
-    // const checkedKeysList = []
-    // const parentKeysList = []
-    // // eslint-disable-next-line array-callback-return
-    // nodes.map((node) => {
-    //   if (!node.children) {
-    //     checkedKeysList.push(node._id)
-    //   } else {
-    //     parentKeysList.push(node._id)
-    //   }
-    // })
-    //
-    // console.log(checkedKeysList)
-    // console.log(parentKeysList)
+    const checkIDs = getHalfCheckedKeys.concat(getCheckedKeys)
 
-    const params = {
-      _id: state.currentRoleId,
-      permissionList: {
-        // checkedKeys: checkedKeysList,
-        checkedKeys
-        // halfCheckedKeys: parentKeysList.concat(halfKeys)
-      }
-    }
-    await instance.proxy.$api.updatePermission(params)
+    await instance.proxy.$api.updateRolePermission({
+      id: state.permission.role_id,
+      permission: getCheckedKeys.toString(),
+      menu_json: checkIDs.toString()
+    })
     state.permissionShowModal = false
     instance.proxy.$message.success('设置成功')
-    // this.getRoleList()
   }
 
   const permissionCloseModal = () => {
     state.permissionShowModal = false
+    state.permission = {
+      role_id: 0,
+      role_name: '',
+      permission_list: []
+    }
+
+    instance.proxy.$refs.permissionTree.setCheckedKeys([])
   }
 
   const getMenuList = async () => {
-    // const { data } = await instance.proxy.$api.getMenuList()
-    // console.log('data')
-    // console.log(data)
-    // console.log('data')
-    // state.menuList = data.data
+    const { data } = await instance.proxy.$api.getMenuTreeList(0)
+    state.menuList = data.data
   }
 
   return { handleOpenPermission, handlePermissionSubmit, permissionCloseModal, getMenuList }
@@ -374,57 +336,18 @@ function useRoleTableEffect (state, instance) {
 
   const getRoleList = async () => {
     const params = toRaw(state.queryForm)
-
-    console.log('params')
-    console.log(params)
-    console.log('params')
-    // params.pageIndex = state.pager.pageNum
-    // params.pageSize = state.pager.pageSize
-    // console.log('userSearch')
-    // console.log(params)
-    // console.log('userSearch')
     const { data: { data: { list, total } } } = await instance.proxy.$api.getRoleList(params)
-
-    console.log('list')
-    console.log(list)
-    console.log('list')
     state.roleList = list || []
     state.queryForm.total = total || 0
-    // getActionMap(list.data.data.list)
-    // state.pager.total = list.data.data.page.total
   }
 
-  // const getActionMap = (list) => {
-  //   const actionMap = {}
-  //   const deep = (arr) => {
-  //     while (arr.length) {
-  //       const item = arr.pop()
-  //       if (item.children && item.action) {
-  //         actionMap[item._id] = item.menuName
-  //       }
-  //       if (item.children && !item.action) {
-  //         deep(item.children)
-  //       }
-  //     }
-  //   }
-  //   deep(JSON.parse(JSON.stringify(list)))
-  //
-  //   console.log('actionMap')
-  //   console.log(actionMap)
-  //   console.log('actionMap')
-  //   state.actionMap = actionMap
-  // }
-
   const handleCurrentChange = (current) => {
-    console.log('dddd')
-    console.log(state.pager)
     state.queryForm.page_index = current
     getRoleList()
   }
 
   const handleReset = () => {
     console.log('handleReset')
-
     state.queryForm = {
       ...state.queryForm,
       role_name: ''
@@ -434,10 +357,6 @@ function useRoleTableEffect (state, instance) {
   const handleEdit = (row) => {
     state.action = 'edit'
     state.roleFormShowModal = true
-
-    console.log(row)
-    console.log(row)
-    console.log(row)
 
     instance.proxy.$nextTick(() => {
       state.roleFormRoleForm = {
