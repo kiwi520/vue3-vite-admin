@@ -1,10 +1,17 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import Components from 'unplugin-vue-components/vite'
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   overlay: false,
-  plugins: [vue()],
+  plugins: [
+    vue(),
+    Components({
+      resolvers: [ElementPlusResolver()]
+    })
+  ],
   port: 3001,
   server: {
     host: '0.0.0.0',

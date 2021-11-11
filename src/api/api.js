@@ -54,14 +54,6 @@ export default {
       mock: false
     })
   },
-  getPermissionList () {
-    return request({
-      url: '/users/getPermissionList',
-      method: 'get',
-      data: {},
-      mock: false
-    })
-  },
 
   // 后台用户
   // 后台添加用户
@@ -94,6 +86,16 @@ export default {
       url: '/admin?id=' + params,
       method: 'delete',
       data: {}
+    })
+  },
+
+  // 获取用户左侧菜单列表
+  getPermissionList () {
+    return request({
+      url: '/user/permission',
+      method: 'get',
+      data: {},
+      mock: false
     })
   },
 

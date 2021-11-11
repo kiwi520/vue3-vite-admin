@@ -17,36 +17,70 @@
           text-color="white"
           :collapse="isCollapse"
         >
-          <el-submenu index="1">
-            <template #title>
-              <i class="el-icon-setting" />
-              <span>系统管理</span>
-            </template>
-            <el-menu-item index="/system/department">
-              部门管理
-            </el-menu-item>
-            <el-menu-item index="/system/user">
-              用户管理
-            </el-menu-item>
-            <el-menu-item index="/system/role">
-              角色管理
-            </el-menu-item>
-            <el-menu-item index="/system/menu">
-              菜单管理
-            </el-menu-item>
-          </el-submenu>
-          <el-submenu index="2">
-            <template #title>
-              <i class="el-icon-suitcase" />
-              <span>审批管理</span>
-            </template>
-            <el-menu-item index="3">
-              休假申请
-            </el-menu-item>
-            <el-menu-item index="4">
-              待我审批
-            </el-menu-item>
-          </el-submenu>
+          <template v-for="menu in menuList">
+            <el-submenu
+              v-if="menu.children && menu.children.length > 0"
+              :key="menu.id"
+              :index="menu.path"
+            >
+              <template #title>
+                <el-icon :size="18">
+                  <component :is="menu.icon" />
+                </el-icon>
+
+                <span style="margin-left: 10px">{{ menu.name }}</span>
+              </template>
+              <el-menu-item
+                v-for="submenu in menu.children"
+                :key="submenu.id"
+                :index="submenu.path"
+              >
+                {{ submenu.name }}
+              </el-menu-item>
+            </el-submenu>
+            <el-submenu
+              v-else
+              :key="menu.id"
+              index=""
+            >
+              <template #title>
+                <el-icon :size="18">
+                  <component :is="menu.icon" />
+                </el-icon>
+                <span style="margin-left: 10px">{{ menu.name }}</span>
+              </template>
+            </el-submenu>
+          </template>
+          <!--                    <el-submenu index="1">-->
+          <!--                      <template #title>-->
+          <!--                        <i class="el-icon-setting" />-->
+          <!--                        <span>系统管理</span>-->
+          <!--                      </template>-->
+          <!--                      <el-menu-item index="/system/department">-->
+          <!--                        部门管理-->
+          <!--                      </el-menu-item>-->
+          <!--                      <el-menu-item index="/system/user">-->
+          <!--                        用户管理-->
+          <!--                      </el-menu-item>-->
+          <!--                      <el-menu-item index="/system/role">-->
+          <!--                        角色管理-->
+          <!--                      </el-menu-item>-->
+          <!--                      <el-menu-item index="/system/menu">-->
+          <!--                        菜单管理-->
+          <!--                      </el-menu-item>-->
+          <!--                    </el-submenu>-->
+          <!--                    <el-submenu index="2">-->
+          <!--                      <template #title>-->
+          <!--                        <i class="el-icon-suitcase" />-->
+          <!--                        <span>审批管理</span>-->
+          <!--                      </template>-->
+          <!--                      <el-menu-item index="3">-->
+          <!--                        休假申请-->
+          <!--                      </el-menu-item>-->
+          <!--                      <el-menu-item index="4">-->
+          <!--                        待我审批-->
+          <!--                      </el-menu-item>-->
+          <!--                    </el-submenu>-->
         </el-menu>
       </div>
     </div>
@@ -99,9 +133,10 @@
 
 <script>
 import storage from '../../utils/storage'
-
+import { Edit, Menu, Setting, Suitcase } from '@element-plus/icons'
 export default {
   name: 'Home',
+  components: { Menu, Edit, Setting, Suitcase },
   data () {
     return {
       userInfo: this.$store.state.userInfo,
@@ -112,7 +147,7 @@ export default {
   },
   mounted () {
     this.getNoticeCount()
-    // this.getPermissionList()
+    this.getPermissionList()
   },
   methods: {
     handleLogout (key) {
@@ -141,7 +176,11 @@ export default {
       console.log(menu)
       console.log(menu)
       console.log('menu')
-      this.menuList = menu || []
+      this.menuList = menu.data.data.menu_tree_list || []
+
+      console.log('this.menuList')
+      console.log(this.menuList)
+      console.log('this.menuList')
     }
   }
 }
