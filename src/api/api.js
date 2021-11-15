@@ -6,6 +6,7 @@ export default {
       url: '/auth/login',
       method: 'post',
       data: params,
+      ContentType: false,
       mock: false
     })
   },
@@ -13,6 +14,7 @@ export default {
     return request({
       url: '/leave/count',
       method: 'get',
+      ContentType: false,
       mock: true
     })
   },
@@ -20,6 +22,7 @@ export default {
     return request({
       url: '/menu/count',
       method: 'get',
+      ContentType: false,
       mock: false
     })
   },
@@ -27,6 +30,7 @@ export default {
     return request({
       url: '/user/list',
       method: 'get',
+      ContentType: false,
       data: params
     })
   },
@@ -42,6 +46,7 @@ export default {
       url: '/roles/operate',
       method: 'post',
       data: params,
+      ContentType: false,
       mock: false
     })
   },
@@ -51,6 +56,7 @@ export default {
       url: '/roles/update/permission',
       method: 'post',
       data: params,
+      ContentType: false,
       mock: false
     })
   },
@@ -62,6 +68,7 @@ export default {
       url: '/admin/',
       method: 'post',
       data: params,
+      ContentType: false,
       mock: false
     })
   },
@@ -71,6 +78,7 @@ export default {
       url: '/admin/',
       method: 'put',
       data: params,
+      ContentType: false,
       mock: false
     })
   },
@@ -78,6 +86,7 @@ export default {
     return request({
       url: '/admin/list',
       method: 'post',
+      ContentType: false,
       data: params
     })
   },
@@ -85,6 +94,7 @@ export default {
     return request({
       url: '/admin?id=' + params,
       method: 'delete',
+      ContentType: false,
       data: {}
     })
   },
@@ -95,6 +105,7 @@ export default {
       url: '/user/permission',
       method: 'get',
       data: {},
+      ContentType: false,
       mock: false
     })
   },
@@ -106,6 +117,7 @@ export default {
       url: '/department/',
       method: 'post',
       data: params,
+      ContentType: false,
       mock: false
     })
   },
@@ -115,6 +127,7 @@ export default {
       url: '/department?id=' + id,
       method: 'delete',
       data: {},
+      ContentType: false,
       mock: false
     })
   },
@@ -123,6 +136,7 @@ export default {
       url: '/department/list',
       method: 'post',
       data: params,
+      ContentType: false,
       mock: false
     })
   },
@@ -131,6 +145,7 @@ export default {
       url: '/department/tree?pid=' + params,
       method: 'get',
       data: params,
+      ContentType: false,
       mock: false
     })
   },
@@ -139,6 +154,7 @@ export default {
       url: '/department/',
       method: 'put',
       data: params,
+      ContentType: false,
       mock: false
     })
   },
@@ -151,6 +167,7 @@ export default {
       url: '/role/list',
       method: 'post',
       data: params,
+      ContentType: false,
       mock: false
     })
   },
@@ -159,6 +176,7 @@ export default {
       url: '/role/all',
       method: 'get',
       data: {},
+      ContentType: false,
       mock: false
     })
   },
@@ -169,6 +187,7 @@ export default {
       url: '/role/',
       method: 'post',
       data: params,
+      ContentType: false,
       mock: false
     })
   },
@@ -178,6 +197,7 @@ export default {
       url: '/role/',
       method: 'put',
       data: params,
+      ContentType: false,
       mock: false
     })
   }, // 编辑角色权限
@@ -186,6 +206,7 @@ export default {
       url: '/role/setPermission',
       method: 'put',
       data: params,
+      ContentType: false,
       mock: false
     })
   },
@@ -195,6 +216,7 @@ export default {
       url: '/role?id=' + params,
       method: 'delete',
       data: {},
+      ContentType: false,
       mock: false
     })
   },
@@ -207,6 +229,7 @@ export default {
       url: '/menu',
       method: 'post',
       data: params,
+      ContentType: false,
       mock: false
     })
   },
@@ -217,6 +240,7 @@ export default {
       url: '/menu',
       method: 'put',
       data: params,
+      ContentType: false,
       mock: false
     })
   },
@@ -226,6 +250,7 @@ export default {
       url: '/menu/list',
       method: 'post',
       data: params,
+      ContentType: false,
       mock: false
     })
   },
@@ -235,6 +260,7 @@ export default {
       url: '/menu/tree?pid=' + params,
       method: 'get',
       data: { },
+      ContentType: false,
       mock: false
     })
   },
@@ -245,6 +271,28 @@ export default {
       url: '/menu?id=' + params,
       method: 'delete',
       data: {},
+      ContentType: false,
+      mock: false
+    })
+  },
+
+  // 上传app应用
+  uploadAppVersion (params) {
+    return request({
+      url: '/appVersion/uploadChunk',
+      method: 'post',
+      data: params,
+      ContentType: true,
+      mock: false
+    })
+  },
+  // 上传app应用
+  mergeChunkAppVersion (params) {
+    return request({
+      url: '/appVersion/mergeChunk',
+      method: 'post',
+      data: params,
+      ContentType: false,
       mock: false
     })
   }

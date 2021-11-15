@@ -300,11 +300,16 @@ function useSetPermission (state, instance) {
     const getCheckedKeys = instance.proxy.$refs.permissionTree.getCheckedKeys()
 
     const checkIDs = getHalfCheckedKeys.concat(getCheckedKeys)
+    // console.log('checkIDs')
+    // console.log(checkIDs)
+    // console.log('checkIDs')
+    // console.log('getCheckedKeys')
+    // console.log(getCheckedKeys)
+    // console.log('getCheckedKeys')
 
     await instance.proxy.$api.updateRolePermission({
       id: state.permission.role_id,
-      permission: getCheckedKeys.toString(),
-      menu_json: checkIDs.toString()
+      permission: checkIDs.toString()
     })
     state.permissionShowModal = false
     instance.proxy.$message.success('设置成功')

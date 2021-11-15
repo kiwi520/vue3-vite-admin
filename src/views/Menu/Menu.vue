@@ -9,7 +9,7 @@
       >
         <el-form-item
           label="菜单名称"
-          prop="menuName"
+          prop="name"
         >
           <el-input
             v-model="stateData.queryForm.name"

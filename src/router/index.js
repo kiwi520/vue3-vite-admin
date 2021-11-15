@@ -50,6 +50,14 @@ const routes = [
           title: '角色管理'
         },
         component: () => import('../views/Role/Role.vue')
+      },
+      {
+        name: 'appManger',
+        path: '/system/appManger',
+        meta: {
+          title: '角色管理'
+        },
+        component: () => import('../views/AppManger/AppManger.vue')
       }
 
     ]

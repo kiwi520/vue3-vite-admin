@@ -12,6 +12,7 @@
     "element-plus": "^1.0.2-beta.70",
     "moment": "^2.29.1",
     "qs": "^6.10.1",
+    "spark-md5": "^3.0.2",
     "unplugin-vue-components": "^0.17.2",
     "vue": "^3.0.5",
     "vue-router": "^4.0.10",

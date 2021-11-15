@@ -133,10 +133,10 @@
 
 <script>
 import storage from '../../utils/storage'
-import { Edit, Menu, Setting, Suitcase } from '@element-plus/icons'
+import { Edit, Menu, Setting, Suitcase, ArrowUpBold } from '@element-plus/icons'
 export default {
   name: 'Home',
-  components: { Menu, Edit, Setting, Suitcase },
+  components: { Menu, Edit, Setting, Suitcase, ArrowUpBold },
   data () {
     return {
       userInfo: this.$store.state.userInfo,

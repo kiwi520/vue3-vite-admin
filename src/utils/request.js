@@ -23,7 +23,8 @@ const http = create({
 // 请求拦截
 http.interceptors.request.use((cf) => {
   const headers = cf.headers
-  headers.contentType = 'application/json;charset=UTF-8'
+  // headers.contentType = headers.ContentType && headers.ContentType === true ? 'multipart/form-data' : 'application/json;charset=UTF-8'
+  // headers.contentType = 'application/json;charset=UTF-8'
   console.log('storage.getItem(\'_token\')')
   console.log(storage.getItem('_token'))
   console.log('storage.getItem(\'_token\')')
