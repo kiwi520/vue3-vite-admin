@@ -286,11 +286,64 @@ export default {
       mock: false
     })
   },
+
+  // app管理
+
   // 上传app应用
   mergeChunkAppVersion (params) {
     return request({
       url: '/appVersion/mergeChunk',
       method: 'post',
+      data: params,
+      ContentType: false,
+      mock: false
+    })
+  },
+  // 新增app应用
+  addAppVersion (params) {
+    return request({
+      url: '/appVersion/',
+      method: 'post',
+      data: params,
+      ContentType: false,
+      mock: false
+    })
+  },
+  // 编辑app应用
+  updateAppVersion (params) {
+    return request({
+      url: '/appVersion/',
+      method: 'put',
+      data: params,
+      ContentType: false,
+      mock: false
+    })
+  },
+  // 编辑app应用
+  deleteAppVersion (params) {
+    return request({
+      url: '/appVersion?id=' + params,
+      method: 'delete',
+      data: {},
+      ContentType: false,
+      mock: false
+    })
+  },
+  // 查询app应用
+  getAppVersionList (params) {
+    return request({
+      url: '/appVersion/list',
+      method: 'post',
+      data: params,
+      ContentType: false,
+      mock: false
+    })
+  },
+  // 删除app附件
+  deleteAppApk (params) {
+    return request({
+      url: '/appVersion/deleteAppApk',
+      method: 'delete',
       data: params,
       ContentType: false,
       mock: false
