@@ -311,11 +311,11 @@
 </template>
 
 <script>
-import { getCurrentInstance, onMounted, reactive } from 'vue'
+import { getCurrentInstance, nextTick, onMounted, reactive } from 'vue'
 import * as SparkMD5 from 'spark-md5'
 import { ElMessage } from 'element-plus'
 import moment from 'moment'
-import fileDownload from 'js-file-download'
+// import fileDownload from 'js-file-download'
 
 export default {
   name: 'AppManger',
@@ -703,7 +703,8 @@ function AppVersionListEffect (instance, stateData, chunkSize) {
     stateData.action = 'edit'
     stateData.showModal = true
     // appForm
-    instance.proxy.$nextTick(() => {
+    // instance.proxy.$nextTick(() => {
+    nextTick(() => {
       stateData.appForm = {
         ...row,
         id: row.ID

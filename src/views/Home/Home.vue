@@ -1,90 +1,56 @@
 <template>
   <div class="basic-layout">
-    <div :class="['nav-side',isCollapse?'fold':'unfold']">
+    <div :class="['nav-side',state.isCollapse?'fold':'unfold']">
       <div class="logo">
         <img
           src="./../../assets/logo.png"
           alt=""
         >
-        <span v-if="isCollapse?false:true">manager</span>
+        <span v-if="!state.isCollapse">manager</span>
       </div>
       <div class="menu-list">
         <el-menu
-          default-active="1"
+          :unique-opened="true"
           class="nav-menu"
-          router
-          background-color="#001529"
           text-color="white"
-          :collapse="isCollapse"
+          background-color="#001529"
+          :collapse-transition="false"
+          router
+          :collapse="state.isCollapse"
+          :default-active="activePath"
+          @open="handleOpen"
+          @close="handleClose"
         >
-          <template v-for="menu in menuList">
-            <el-submenu
-              v-if="menu.children && menu.children.length > 0"
-              :key="menu.id"
-              :index="menu.path"
+          <!-- 一级菜单 -->
+          <el-submenu
+            v-for="item in state.menuList"
+            :key="item.id.toString()"
+            :index="item.id.toString()"
+          >
+            <template #title>
+              <el-icon :size="18">
+                <component :is="item.icon" />
+              </el-icon>
+              <span style="margin-left: 10px">{{ item.name }}</span>
+            </template>
+            <!-- 二级菜单 -->
+            <el-menu-item
+              v-for="child in item.children"
+              :key="child.id.toString()"
+              :index="child.path"
             >
               <template #title>
                 <el-icon :size="18">
-                  <component :is="menu.icon" />
+                  <component :is="child.icon" />
                 </el-icon>
-
-                <span style="margin-left: 10px">{{ menu.name }}</span>
+                <span>{{ child.name }}</span>
               </template>
-              <el-menu-item
-                v-for="submenu in menu.children"
-                :key="submenu.id"
-                :index="submenu.path"
-              >
-                {{ submenu.name }}
-              </el-menu-item>
-            </el-submenu>
-            <el-submenu
-              v-else
-              :key="menu.id"
-              index=""
-            >
-              <template #title>
-                <el-icon :size="18">
-                  <component :is="menu.icon" />
-                </el-icon>
-                <span style="margin-left: 10px">{{ menu.name }}</span>
-              </template>
-            </el-submenu>
-          </template>
-          <!--                    <el-submenu index="1">-->
-          <!--                      <template #title>-->
-          <!--                        <i class="el-icon-setting" />-->
-          <!--                        <span>系统管理</span>-->
-          <!--                      </template>-->
-          <!--                      <el-menu-item index="/system/department">-->
-          <!--                        部门管理-->
-          <!--                      </el-menu-item>-->
-          <!--                      <el-menu-item index="/system/user">-->
-          <!--                        用户管理-->
-          <!--                      </el-menu-item>-->
-          <!--                      <el-menu-item index="/system/role">-->
-          <!--                        角色管理-->
-          <!--                      </el-menu-item>-->
-          <!--                      <el-menu-item index="/system/menu">-->
-          <!--                        菜单管理-->
-          <!--                      </el-menu-item>-->
-          <!--                    </el-submenu>-->
-          <!--                    <el-submenu index="2">-->
-          <!--                      <template #title>-->
-          <!--                        <i class="el-icon-suitcase" />-->
-          <!--                        <span>审批管理</span>-->
-          <!--                      </template>-->
-          <!--                      <el-menu-item index="3">-->
-          <!--                        休假申请-->
-          <!--                      </el-menu-item>-->
-          <!--                      <el-menu-item index="4">-->
-          <!--                        待我审批-->
-          <!--                      </el-menu-item>-->
-          <!--                    </el-submenu>-->
+            </el-menu-item>
+          </el-submenu>
         </el-menu>
       </div>
     </div>
-    <div :class="['content-right',isCollapse?'fold':'unfold']">
+    <div :class="['content-right',state.isCollapse?'fold':'unfold']">
       <div class="nav-top">
         <div class="nav-top-left">
           <div
@@ -99,7 +65,7 @@
         </div>
         <div class="user-info">
           <el-badge
-            :is-dot="noticeCount"
+            :is-dot="state.noticeCount"
             class="notice"
             type="danger"
           >
@@ -107,12 +73,12 @@
           </el-badge>
           <el-dropdown @command="handleLogout">
             <span class="user-link">
-              {{ userInfo.userName }}<i class="el-icon-arrow-down el-icon--right" />
+              {{ state.userInfo.userName }}<i class="el-icon-arrow-down el-icon--right" />
             </span>
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item command="email">
-                  邮箱: {{ userInfo.userEmail }}
+                  邮箱: {{ state.userInfo.userEmail }}
                 </el-dropdown-item>
                 <el-dropdown-item command="logout">
                   退出:
@@ -132,56 +98,79 @@
 </template>
 
 <script>
+
 import storage from '../../utils/storage'
 import { Edit, Menu, Setting, Suitcase, ArrowUpBold } from '@element-plus/icons'
+import { getCurrentInstance, onMounted, reactive, ref } from 'vue'
+import { onBeforeRouteUpdate } from 'vue-router'
 export default {
   name: 'Home',
-  components: { Menu, Edit, Setting, Suitcase, ArrowUpBold },
-  data () {
-    return {
-      userInfo: this.$store.state.userInfo,
+  components: {
+    Menu,
+    Edit,
+    Setting,
+    Suitcase,
+    ArrowUpBold
+  },
+  setup () {
+    const instance = getCurrentInstance()
+    const activePath = ref('')
+    const state = reactive({
       isCollapse: false,
+      userInfo: instance.proxy.$store.state.userInfo,
       noticeCount: 0,
       menuList: []
+    })
+    onBeforeRouteUpdate(to => {
+      console.log('to.path')
+      console.log(to.path)
+      console.log('to.path')
+      activePath.value = to.path
+    })
+
+    const handleOpen = () => {
+
     }
-  },
-  mounted () {
-    this.getNoticeCount()
-    this.getPermissionList()
-  },
-  methods: {
-    handleLogout (key) {
+
+    const handleClose = () => {
+
+    }
+    const handleLogout = (key) => {
       if (key === 'email') return ''
       console.log(key)
       if (key === 'logout') {
         // this.$store.commit('saveUserInfo', '')
         storage.setItem('userInfo', '')
-        this.userInfo = {
+        state.userInfo = {
           userName: '',
           userEmail: ''
         }
-        this.$router.push({ name: 'login' })
+        instance.proxy.$router.push({ name: 'login' })
       }
-    },
-    toggleCollapse () {
-      this.isCollapse = !this.isCollapse
-    },
-    async getNoticeCount () {
-      const count = await this.$api.noticeCount()
-      this.noticeCount = count.data > 0
-    },
-    async getPermissionList () {
-      const menu = await this.$api.getPermissionList()
-      console.log('menu')
-      console.log(menu)
-      console.log(menu)
-      console.log('menu')
-      this.menuList = menu.data.data.menu_tree_list || []
-
-      console.log('this.menuList')
-      console.log(this.menuList)
-      console.log('this.menuList')
     }
+
+    const toggleCollapse = () => {
+      state.isCollapse = !state.isCollapse
+    }
+
+    const getNoticeCount = async () => {
+      const count = await instance.proxy.$api.noticeCount()
+      state.noticeCount = count.data > 0
+    }
+    const getPermissionList = async () => {
+      const menu = await instance.proxy.$api.getPermissionList()
+      state.menuList = menu.data.data.menu_tree_list || []
+    }
+
+    onMounted(() => {
+      getNoticeCount()
+      getPermissionList()
+
+      // 页面刷新时获取当前路由并选中当前路由
+      activePath.value = instance.proxy.$router.currentRoute.value.path
+    })
+
+    return { activePath, state, handleOpen, handleClose, handleLogout, toggleCollapse, getNoticeCount, getPermissionList }
   }
 }
 </script>
@@ -219,11 +208,11 @@ export default {
             }
         }
 
-        .nav-menu{
+        .nav-menu {
             border-right: none;
         }
 
-        &.fold{
+        &.fold {
             width: 64px;
         }
     }
@@ -233,9 +222,10 @@ export default {
         height: 100vh;
         box-sizing: border-box;
 
-        &.fold{
+        &.fold {
             margin-left: 64px;
         }
+
         .nav-top {
             width: 100%;
             height: 50px;
@@ -246,25 +236,28 @@ export default {
             padding: 0 10px;
             box-sizing: border-box;
 
-            .nav-top-left{
+            .nav-top-left {
                 height: 50px;
                 display: flex;
                 flex-flow: row nowrap;
-                .menu-collapse{
+
+                .menu-collapse {
                     cursor: pointer;
                     margin-right: 15px;
                 }
-                .bread{
+
+                .bread {
                     height: 50px;
                 }
             }
 
-            .user-info{
-                .notice{
+            .user-info {
+                .notice {
                     line-height: 30px;
                     margin-right: 15px;
                 }
-                .user-link{
+
+                .user-link {
                     cursor: pointer;
                     color: #409eff;
                 }
