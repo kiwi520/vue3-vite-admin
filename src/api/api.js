@@ -329,6 +329,16 @@ export default {
       mock: false
     })
   },
+  // 下载app应用
+  downloadAppVersionFile (params) {
+    return request({
+      url: '/appVersion/downloadAppVersionFile?id=' + params,
+      method: 'get',
+      data: {},
+      responseType: 'blob',
+      mock: false
+    })
+  },
   // 查询app应用
   getAppVersionList (params) {
     return request({

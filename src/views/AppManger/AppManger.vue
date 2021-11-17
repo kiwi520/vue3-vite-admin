@@ -118,7 +118,7 @@
             <el-button
               size="mini"
               type="primary"
-              @click="handleDownloadApp(scope.row)"
+              @click="handleDownloadApp(scope.row.ID)"
             >
               下载应用
             </el-button>
@@ -315,6 +315,7 @@ import { getCurrentInstance, onMounted, reactive } from 'vue'
 import * as SparkMD5 from 'spark-md5'
 import { ElMessage } from 'element-plus'
 import moment from 'moment'
+import fileDownload from 'js-file-download'
 
 export default {
   name: 'AppManger',
@@ -613,7 +614,7 @@ function addAppVersionEffect (instance, stateData, chunkSize) {
       const res = await instance.proxy.$api.updateAppVersion(stateData.appForm)
 
       if (res.status === 200) {
-        instance.proxy.$message.success('添加成功')
+        instance.proxy.$message.success('修改成功')
         stateData.showModal = false
         addFormReset()
       }
@@ -661,8 +662,26 @@ function AppVersionListEffect (instance, stateData, chunkSize) {
     stateData.queryForm.total = list.data.data.total
   }
 
-  const handleDownloadApp = () => {
+  const handleDownloadApp = async (id) => {
+    const res = await instance.proxy.$api.downloadAppVersionFile(id)
 
+    // 获取response返回的文件名
+    const disposition = res.headers['content-disposition']
+    const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+    const matches = filenameRegex.exec(disposition)
+    if (matches != null && matches[1]) {
+      const filename = matches[1].replace(/['"]/g, '')
+      const url = window.URL.createObjectURL(new Blob([res.data]))
+      // 生成一个a标签
+      const link = document.createElement('a')
+      link.style.display = 'none'
+      link.href = url
+      // 生成时间戳
+      const timestamp = new Date().getTime()
+      link.download = timestamp + '_' + filename
+      document.body.appendChild(link)
+      link.click()
+    }
   }
 
   const handleQuery = async () => {
