@@ -103,13 +103,10 @@
 
 <script>
 
-import storage from '../../utils/storage'
 import { Edit, Menu, Setting, Suitcase, ArrowUpBold } from '@element-plus/icons'
 import { getCurrentInstance, nextTick, onMounted, reactive, ref } from 'vue'
 import { onBeforeRouteUpdate } from 'vue-router'
-import { useStore } from 'vuex'
 import { useGetters } from '../../hooks/useGetters'
-import { SAVEUSERINFO } from '../../store/mutation-types'
 export default {
   name: 'Home',
   components: {
@@ -121,7 +118,6 @@ export default {
   },
   setup () {
     const instance = getCurrentInstance()
-    const store = useStore()
     const activePath = ref('')
     const state = reactive({
       isCollapse: false,
@@ -147,8 +143,9 @@ export default {
       if (key === 'email') return ''
       console.log(key)
       if (key === 'logout') {
-        store.commit('user/' + [SAVEUSERINFO], '')
-        storage.setItem('userInfo', '')
+        // store.commit('user/' + [SAVEUSERINFO], '')
+        // storage.setItem('userInfo', '')
+        localStorage.clear()
         instance.proxy.$router.push({ name: 'login' })
       }
     }

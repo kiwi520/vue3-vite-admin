@@ -3,9 +3,9 @@
     <div class="modal">
       <el-form
         ref="userForm"
-        :model="user"
+        :model="stateData.user"
         status-icon
-        :rules="rules"
+        :rules="stateData.rules"
       >
         <div class="title">
           登录系统
@@ -15,7 +15,7 @@
           required
         >
           <el-input
-            v-model="user.email"
+            v-model="stateData.user.email"
             type="text"
             prefix-icon="el-icon-user"
           />
@@ -25,7 +25,7 @@
           required
         >
           <el-input
-            v-model="user.password"
+            v-model="stateData.user.password"
             type="password"
             prefix-icon="el-icon-view"
           />
@@ -45,11 +45,14 @@
 </template>
 <script>
 import storage from '../../utils/storage'
+import { getCurrentInstance, reactive } from 'vue'
 
 export default {
   name: 'Login',
-  data () {
-    return {
+
+  setup () {
+    const instance = getCurrentInstance()
+    const stateData = reactive({
       user: {
         email: '',
         password: ''
@@ -60,7 +63,13 @@ export default {
             required: true,
             message: '请输入用户名',
             trigger: 'blur',
-            validate: this.validateUserName
+            validate: (rule, value, callback) => {
+              if (value === '') {
+                callback(new Error('请输入用户名'))
+              } else {
+                callback()
+              }
+            }
           }
         ],
         password: [
@@ -68,61 +77,55 @@ export default {
             required: true,
             message: '请输入密码',
             trigger: 'blur',
-            validate: this.validateUserPwd
+            validate: (rule, value, callback) => {
+              if (value === '') {
+                callback(new Error('请输入用户密码'))
+              } else {
+                callback()
+              }
+            }
           }
         ]
       }
-    }
-  },
-  methods: {
-    login (form) {
-      this.$refs[form].validate((valid) => {
+    })
+
+    const login = (form) => {
+      instance.proxy.$refs[form].validate((valid) => {
         console.log('dddddddd')
         console.log(valid)
         console.log('dddddddd')
         if (valid) {
           console.log('111111')
-          this.$api.login(this.user).then((res) => {
+          instance.proxy.$api.login(stateData.user).then((res) => {
             console.log('ddaaaaaaaa')
             // console.log(res)
             console.log('ddaaaaaaaa')
             if (res.status === 200) {
-              this.$store.commit('user/saveUserInfo', res.data.data)
+              instance.proxy.$store.commit('user/saveUserInfo', res.data.data)
               storage.setItem('userInfo', res.data.data || {})
               storage.setItem('_token', res.data.data.token || {})
-              this.$router.push('/welcome')
+              instance.proxy.$router.push('/welcome')
             } else {
               console.log('saaa')
-              this.$message.error(res.msg)
+              instance.proxy.$message.error(res.msg)
             }
           }).catch(err => {
             console.log(err)
-            this.$message.error(err.msg)
+            instance.proxy.$message.error(err.msg)
           })
         } else {
           console.log('error submit!!')
           return false
         }
       })
-    },
-    goHome () {
-      this.$router.push('/welcome')
-    },
-    validateUserName  (rule, value, callback) {
-      if (value === '') {
-        callback(new Error('请输入用户名'))
-      } else {
-        callback()
-      }
-    },
-    validateUserPwd  (rule, value, callback) {
-      if (value === '') {
-        callback(new Error('请输入用户密码'))
-      } else {
-        callback()
-      }
+    }
+
+    return {
+      stateData,
+      login
     }
   }
+
 }
 </script>
 
