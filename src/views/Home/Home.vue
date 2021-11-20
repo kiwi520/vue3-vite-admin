@@ -73,12 +73,16 @@
           </el-badge>
           <el-dropdown @command="handleLogout">
             <span class="user-link">
-              {{ state.userInfo.userName }}<i class="el-icon-arrow-down el-icon--right" />
+              <!--              {{ state.userInfo.name }}<i class="el-icon-arrow-down el-icon&#45;&#45;right" />-->
+              <!--              {{ $store.getters['user/getUserInfo'].name }}<i class="el-icon-arrow-down el-icon&#45;&#45;right" />-->
+              {{ getUserInfo.name }}<i class="el-icon-arrow-down el-icon--right" />
             </span>
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item command="email">
-                  邮箱: {{ state.userInfo.userEmail }}
+                  <!--                  邮箱: {{ state.userInfo.email }}-->
+                  <!--                  邮箱: {{ $store.getters['user/getUserInfo'].email }}-->
+                  邮箱: {{ getUserInfo.email }}
                 </el-dropdown-item>
                 <el-dropdown-item command="logout">
                   退出:
@@ -101,8 +105,11 @@
 
 import storage from '../../utils/storage'
 import { Edit, Menu, Setting, Suitcase, ArrowUpBold } from '@element-plus/icons'
-import { getCurrentInstance, onMounted, reactive, ref } from 'vue'
+import { getCurrentInstance, nextTick, onMounted, reactive, ref } from 'vue'
 import { onBeforeRouteUpdate } from 'vue-router'
+import { useStore } from 'vuex'
+import { useGetters } from '../../hooks/useGetters'
+import { SAVEUSERINFO } from '../../store/mutation-types'
 export default {
   name: 'Home',
   components: {
@@ -114,10 +121,11 @@ export default {
   },
   setup () {
     const instance = getCurrentInstance()
+    const store = useStore()
     const activePath = ref('')
     const state = reactive({
       isCollapse: false,
-      userInfo: instance.proxy.$store.state.userInfo,
+      // userInfo: store.state.getters.user.getUserInfo,
       noticeCount: 0,
       menuList: []
     })
@@ -139,12 +147,8 @@ export default {
       if (key === 'email') return ''
       console.log(key)
       if (key === 'logout') {
-        // this.$store.commit('saveUserInfo', '')
+        store.commit('user/' + [SAVEUSERINFO], '')
         storage.setItem('userInfo', '')
-        state.userInfo = {
-          userName: '',
-          userEmail: ''
-        }
         instance.proxy.$router.push({ name: 'login' })
       }
     }
@@ -162,15 +166,19 @@ export default {
       state.menuList = menu.data.data.menu_tree_list || []
     }
 
+    const getUserInfo = useGetters({ getUserInfo: 'user/getUserInfo' })
+
     onMounted(() => {
       getNoticeCount()
       getPermissionList()
 
-      // 页面刷新时获取当前路由并选中当前路由
-      activePath.value = instance.proxy.$router.currentRoute.value.path
+      nextTick(() => {
+        // 页面刷新时获取当前路由并选中当前路由
+        activePath.value = instance.proxy.$router.currentRoute.value.path
+      })
     })
 
-    return { activePath, state, handleOpen, handleClose, handleLogout, toggleCollapse, getNoticeCount, getPermissionList }
+    return { ...getUserInfo, activePath, state, handleOpen, handleClose, handleLogout, toggleCollapse, getNoticeCount, getPermissionList }
   }
 }
 </script>
@@ -184,6 +192,7 @@ export default {
         width: 200px;
         height: 100vh;
         overflow-x: hidden;
+        z-index:10;
 
         color: white;
         background-color: #001529;
@@ -269,10 +278,12 @@ export default {
             padding: 10px;
             box-sizing: border-box;
             height: calc(100vh - 50px);
+            overflow: hidden;
 
             .main-page {
                 height: 100%;
                 background-color: white;
+                overflow: hidden;
             }
         }
     }

@@ -44,6 +44,8 @@
   </div>
 </template>
 <script>
+import storage from '../../utils/storage'
+
 export default {
   name: 'Login',
   data () {
@@ -85,7 +87,9 @@ export default {
             // console.log(res)
             console.log('ddaaaaaaaa')
             if (res.status === 200) {
-              this.$store.commit('saveUserInfo', res.data.data)
+              this.$store.commit('user/saveUserInfo', res.data.data)
+              storage.setItem('userInfo', res.data.data || {})
+              storage.setItem('_token', res.data.data.token || {})
               this.$router.push('/welcome')
             } else {
               console.log('saaa')

@@ -358,5 +358,15 @@ export default {
       ContentType: false,
       mock: false
     })
+  },
+  // 删除app附件
+  profile () {
+    return request({
+      url: '/user/profile',
+      method: 'get',
+      data: {},
+      ContentType: false,
+      mock: false
+    })
   }
 }

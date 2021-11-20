@@ -46,18 +46,20 @@ http.interceptors.response.use((response) => {
     resolve(response)
   })
 }, error => {
-  if (error.response.status !== 401) {
-    return new Promise((resolve, reject) => {
-      reject(error)
-    })
-  }
-
-  if (error.config.url === '/users/refreshToken' || error.response.message === 'Account is disabled.') {
+  if (error.response.status === 401) {
+    storage.clearAll()
+    ElMessage.error('令牌过期,请重新登录')
+    router.push({ name: 'login' })
+  } else if (error.config.url === '/users/refreshToken' || error.response.message === 'Account is disabled.') {
     // TokenStorage.clear()
     storage.clearAll()
     ElMessage.error(TOKEN_INVALID)
     router.push({ name: 'login' })
 
+    return new Promise((resolve, reject) => {
+      reject(error)
+    })
+  } else {
     return new Promise((resolve, reject) => {
       reject(error)
     })
