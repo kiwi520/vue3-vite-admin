@@ -357,8 +357,124 @@ export default {
 
     }
 
-    const { handleCreate, handleReset, handleClose, handleSubmit, handleEdit } = userAddUserEffect(instance, stateData)
-    const { handleQuery, handleCurrentChange, handleDelete } = userUserTableList(instance, stateData)
+    // const { handleCreate, handleReset, handleClose, handleSubmit, handleEdit } = userAddUserEffect(instance, stateData)
+    // const { handleQuery, handleCurrentChange, handleDelete } = userUserTableList(instance, stateData)
+
+    // handleCreate
+    const handleCreate = () => {
+      stateData.action = 'create'
+      stateData.showModal = true
+      // 获取部门列表
+      getDeptList()
+      // 获取角色列表
+      getRoleAllList()
+    }
+
+    const handleReset = () => {
+      stateData.userSearch = {
+        ...stateData.userSearch,
+        name: '',
+        state: ''
+      }
+    }
+
+    const getDeptList = async () => {
+      const list = await instance.proxy.$api.getDeptTreeList(0)
+      stateData.deptList = list.data.data
+    }
+
+    // 角色列表查询
+    const getRoleAllList = async () => {
+      const list = await instance.proxy.$api.getRoleAllList()
+      console.log('list')
+      console.log(list)
+      console.log('list')
+      stateData.roleList = list.data.data
+    }
+
+    // 关闭modal
+    const handleClose = () => {
+      stateData.userForm = {
+        userName: '',
+        userEmail: '',
+        mobile: '',
+        job: '',
+        state: '',
+        role_id: 0,
+        department_id: 0,
+        remark: ''
+      }
+      stateData.showModal = false
+    }
+
+    // 提交代码
+    const handleSubmit = () => {
+      instance.proxy.$refs.userAddStateRef.validate(async valid => {
+        console.log(valid)
+        if (!valid) {
+          // ElMessage.error('资料不完整，请先填写完整再提交')
+          instance.proxy.$message.error('资料不完整，请先填写完整再提交')
+          return false
+        } else {
+          const params = toRaw(stateData.userForm)
+          // params.userEmail += '@imooc.com'
+          params.gender = params.gender || 1
+          params.role_id = params.role_id || 1
+          params.password = params.password || '123456'
+
+          if (stateData.action === 'create') {
+            await instance.proxy.$api.userSubmit(params)
+            stateData.showModal = false
+            handleReset()
+            instance.proxy.$message.success('用户创建成功')
+          } else if (stateData.action === 'edit') {
+            params.id = params.ID
+            params.remark = params.remark || ''
+            await instance.proxy.$api.adminUserUpdate(params)
+            stateData.showModal = false
+            handleReset()
+            instance.proxy.$message.success('用户修改成功')
+          }
+        }
+      })
+    }
+
+    // 编辑用户数据
+    const handleEdit = (index, row) => {
+      stateData.action = 'edit'
+      stateData.showModal = true
+      // 获取部门列表
+      getDeptList()
+      // 获取角色列表
+      getRoleAllList()
+      instance.proxy.$nextTick(() => {
+        Object.assign(stateData.userForm, row)
+      })
+    }
+
+    // 查询
+    const handleQuery = () => {
+      getUserList()
+    }
+
+    const getUserList = async () => {
+      const params = toRaw(stateData.userSearch)
+      const list = await instance.proxy.$api.getAdminUserList(params)
+      stateData.userTableList = list.data.data.list
+      stateData.userSearch.total = list.data.data.total
+    }
+
+    // 分页事件处理
+    const handleCurrentChange = async (current) => {
+      stateData.userSearch.page_index = current
+      getUserList()
+    }
+
+    const handleDelete = async (index, row) => {
+      await instance.proxy.$api.adminDel(row.ID)
+      instance.proxy.$message.success('删除成功')
+      getUserList()
+    }
 
     onMounted(() => {
       handleQuery()
@@ -371,129 +487,6 @@ export default {
 
 }
 
-function userAddUserEffect (instance, stateData) {
-  // handleCreate
-  const handleCreate = () => {
-    stateData.action = 'create'
-    stateData.showModal = true
-    // 获取部门列表
-    getDeptList()
-    // 获取角色列表
-    getRoleAllList()
-  }
-
-  const handleReset = () => {
-    stateData.userSearch = {
-      ...stateData.userSearch,
-      name: '',
-      state: ''
-    }
-  }
-
-  const getDeptList = async () => {
-    const list = await instance.proxy.$api.getDeptTreeList(0)
-    stateData.deptList = list.data.data
-  }
-
-  // 角色列表查询
-  const getRoleAllList = async () => {
-    const list = await instance.proxy.$api.getRoleAllList()
-    console.log('list')
-    console.log(list)
-    console.log('list')
-    stateData.roleList = list.data.data
-  }
-
-  // 关闭modal
-  const handleClose = () => {
-    stateData.userForm = {
-      userName: '',
-      userEmail: '',
-      mobile: '',
-      job: '',
-      state: '',
-      role_id: 0,
-      department_id: 0,
-      remark: ''
-    }
-    stateData.showModal = false
-  }
-
-  // 提交代码
-  const handleSubmit = () => {
-    instance.proxy.$refs.userAddStateRef.validate(async valid => {
-      console.log(valid)
-      if (!valid) {
-        // ElMessage.error('资料不完整，请先填写完整再提交')
-        instance.proxy.$message.error('资料不完整，请先填写完整再提交')
-        return false
-      } else {
-        const params = toRaw(stateData.userForm)
-        // params.userEmail += '@imooc.com'
-        params.gender = params.gender || 1
-        params.role_id = params.role_id || 1
-        params.password = params.password || '123456'
-
-        if (stateData.action === 'create') {
-          await instance.proxy.$api.userSubmit(params)
-          stateData.showModal = false
-          handleReset()
-          instance.proxy.$message.success('用户创建成功')
-        } else if (stateData.action === 'edit') {
-          params.id = params.ID
-          params.remark = params.remark || ''
-          await instance.proxy.$api.adminUserUpdate(params)
-          stateData.showModal = false
-          handleReset()
-          instance.proxy.$message.success('用户修改成功')
-        }
-      }
-    })
-  }
-
-  // 编辑用户数据
-  const handleEdit = (index, row) => {
-    stateData.action = 'edit'
-    stateData.showModal = true
-    // 获取部门列表
-    getDeptList()
-    // 获取角色列表
-    getRoleAllList()
-    instance.proxy.$nextTick(() => {
-      Object.assign(stateData.userForm, row)
-    })
-  }
-
-  return { handleCreate, handleReset, handleClose, handleSubmit, handleEdit }
-}
-
-function userUserTableList (instance, stateData) {
-  // 查询
-  const handleQuery = () => {
-    getUserList()
-  }
-
-  const getUserList = async () => {
-    const params = toRaw(stateData.userSearch)
-    const list = await instance.proxy.$api.getAdminUserList(params)
-    stateData.userTableList = list.data.data.list
-    stateData.userSearch.total = list.data.data.total
-  }
-
-  // 分页事件处理
-  const handleCurrentChange = async (current) => {
-    stateData.userSearch.page_index = current
-    getUserList()
-  }
-
-  const handleDelete = async (index, row) => {
-    await instance.proxy.$api.adminDel(row.ID)
-    instance.proxy.$message.success('删除成功')
-    getUserList()
-  }
-
-  return { handleQuery, handleCurrentChange, handleDelete }
-}
 </script>
 
 <style lang="scss">

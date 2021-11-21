@@ -11,17 +11,7 @@ export default {
   }),
   getters: {
     getUserInfo (state, mutation) {
-      console.log('state.userInfo')
-      console.log(typeof state.userInfo)
-      console.log(state.userInfo)
-      console.log(typeof state.userInfo)
-      console.log('state.userInfo')
-      const data = Object.keys(state.userInfo).length === 0 ? storage.getItem('userInfo') : state.userInfo
-      console.log('getUserInfo-getUserInfo')
-      console.log(data)
-      console.log(storage.getItem('userInfo'))
-      console.log('getUserInfo-getUserInfo')
-      return data
+      return Object.keys(state.userInfo).length === 0 ? storage.getItem('userInfo') : state.userInfo
     }
   },
   mutations: {

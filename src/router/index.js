@@ -92,11 +92,29 @@ const roleRoute = {
   },
   component: () => import('../views/Role/Role.vue')
 }
+const categoryRoute = {
+  name: 'category',
+  path: '/system/category',
+  meta: {
+    title: 'app文章分类管理'
+  },
+  component: () => import('../views/Category/Category.vue')
+}
+const articleRoute = {
+  name: 'article',
+  path: '/system/article',
+  meta: {
+    title: 'app文章管理'
+  },
+  component: () => import('../views/Article/Article.vue')
+}
 // 添加一级路由
 router.addRoute(notFoundRoute)
 
 // 添加二级路由
 router.addRoute('home', roleRoute)
+router.addRoute('home', categoryRoute)
+router.addRoute('home', articleRoute)
 
 // 路由守卫
 router.beforeEach((to, from) => {

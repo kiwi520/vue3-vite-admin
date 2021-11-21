@@ -359,7 +359,7 @@ export default {
       mock: false
     })
   },
-  // 删除app附件
+  // 获取用户信息
   profile () {
     return request({
       url: '/user/profile',
@@ -368,5 +368,63 @@ export default {
       ContentType: false,
       mock: false
     })
+  },
+
+  // 分类管理
+
+  // 获取分类tree列表
+  getCategoryTree (params) {
+    return request({
+      url: '/category/tree?id=' + params,
+      method: 'get',
+      data: {},
+      ContentType: false,
+      mock: false
+    })
+  },
+
+  // 新增分类
+  addCategory (params) {
+    return request({
+      url: '/category/',
+      method: 'post',
+      data: params,
+      ContentType: false,
+      mock: false
+    })
+  },
+
+  // 编辑分类
+  updateCategory (params) {
+    return request({
+      url: '/category',
+      method: 'put',
+      data: params,
+      ContentType: false,
+      mock: false
+    })
+  },
+
+  // 删除分类
+  deleteCategory (params) {
+    return request({
+      url: '/category?id=' + params,
+      method: 'delete',
+      data: {},
+      ContentType: false,
+      mock: false
+    })
+  },
+
+  // 查询分类列表
+  searchCategoryList (params) {
+    return request({
+      url: '/category/list',
+      method: 'post',
+      data: params,
+      ContentType: false,
+      mock: false
+    })
   }
+
 }
