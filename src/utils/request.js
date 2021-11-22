@@ -25,9 +25,9 @@ http.interceptors.request.use((cf) => {
   const headers = cf.headers
   // headers.contentType = headers.ContentType && headers.ContentType === true ? 'multipart/form-data' : 'application/json;charset=UTF-8'
   // headers.contentType = 'application/json;charset=UTF-8'
-  console.log('storage.getItem(\'_token\')')
-  console.log(storage.getItem('_token'))
-  console.log('storage.getItem(\'_token\')')
+  // console.log('storage.getItem(\'_token\')')
+  // console.log(storage.getItem('_token'))
+  // console.log('storage.getItem(\'_token\')')
   // if (!headers.Authorization) headers.Authorization = 'Bearer ' + storage.getItem('_token')
   if (!headers.Authorization) headers.Authorization = storage.getItem('_token')
   if (cf.method === 'post') {
@@ -93,30 +93,6 @@ http.interceptors.response.use((response) => {
       Promise.reject(error)
     })
 })
-// 响应拦截
-// http.interceptors.response.use((res) => {
-//   console.log('interceptors')
-//   console.log('interceptors')
-//   console.log(res)
-//   console.log('interceptors')
-//
-//   const { code } = res.data
-//   if (code === 50001) {
-//     ElMessage.error(TOKEN_INVALID)
-//
-//     setTimeout(() => {
-//       router.push({ name: 'login' })
-//     }, 1500)
-//
-//     return Promise.reject(TOKEN_INVALID)
-//   } else {
-//     console.log('interceptors err')
-//     console.log('interceptors err')
-//     console.log('interceptors err')
-//     // ElMessage.error(msg || NETWORK_ERROR)
-//     return Promise.resolve(res)
-//   }
-// })
 
 /**
  * 请求封装函数

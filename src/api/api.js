@@ -425,6 +425,51 @@ export default {
       ContentType: false,
       mock: false
     })
+  },
+
+  // 文章管理
+
+  // 新增文章
+  addArticle (params) {
+    return request({
+      url: '/article/',
+      method: 'post',
+      data: params,
+      ContentType: false,
+      mock: false
+    })
+  },
+
+  // 编辑w文章
+  updateArticle (params) {
+    return request({
+      url: '/article',
+      method: 'put',
+      data: params,
+      ContentType: false,
+      mock: false
+    })
+  },
+  // 查询文章列表
+  searchArticleList (params) {
+    return request({
+      url: '/article/list',
+      method: 'post',
+      data: params,
+      ContentType: false,
+      mock: false
+    })
+  },
+
+  // 删除文章
+  deleteArticle (params) {
+    return request({
+      url: '/article?id=' + params,
+      method: 'delete',
+      data: {},
+      ContentType: false,
+      mock: false
+    })
   }
 
 }

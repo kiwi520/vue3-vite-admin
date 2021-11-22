@@ -224,9 +224,6 @@ export default {
       stateData.showModal = true
     }
     const handleFormSubmit = () => {
-      console.log('stateData.postForm')
-      console.log(stateData.postForm)
-      console.log('stateData.postForm')
       instance.proxy.$refs.cateForm.validate(async (valid) => {
         if (valid) {
           if (stateData.action === 'create') {
@@ -273,9 +270,6 @@ export default {
       })
     }
     const handleDel = async (id) => {
-      console.log(id)
-      console.log(id)
-      console.log(id)
       const res = await instance.proxy.$api.deleteCategory(id)
       if (res.status === 200) {
         instance.proxy.$message.success('删除成功')
