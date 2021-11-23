@@ -18,6 +18,6 @@ app.use(router)
 app.use(ElementPlus, { locale })
 app.use(store)
 
-store.dispatch('user/GetProfile')
+// store.dispatch('user/GetProfile')
 
 app.mount('#app')

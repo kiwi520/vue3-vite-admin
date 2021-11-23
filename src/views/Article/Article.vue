@@ -155,21 +155,36 @@
           <el-upload
             class="avatar-uploader"
             action="/api/article/saveImg"
-            :show-file-list="true"
+            :show-file-list="false"
             :on-success="handleAvatarSuccess"
             :before-upload="beforeAvatarUpload"
             :headers="{ Authorization: stateData._token }"
           >
+            <el-icon
+              v-if="!stateData.postForm.img_path"
+              :size="28"
+              color="#409EFC"
+            >
+              <upload-filled />
+            </el-icon>
+          </el-upload>
+          <div
+            v-if="stateData.postForm.img_path"
+            class="img-box"
+          >
+            <div
+              class="img-del"
+              :data-path="stateData.postForm.img_path"
+              @click="ImgDel"
+            >
+              <el-icon><close-bold /></el-icon>
+            </div>
             <img
-              v-if="stateData.postForm.img_path"
               :src="stateData.postForm.img_path"
               class="avatar"
             >
-            <i
-              v-else
-              class="el-icon-plus avatar-uploader-icon"
-            />
-          </el-upload>
+          </div>
+
           <el-input
             v-model="stateData.postForm.img_path"
             type="hidden"
@@ -212,6 +227,7 @@
 </template>
 
 <script>
+import { UploadFilled, CloseBold } from '@element-plus/icons'
 import { getCurrentInstance, nextTick, onMounted, reactive } from 'vue'
 import moment from 'moment'
 import WangEditor from '../../components/WangEditor.vue'
@@ -219,7 +235,9 @@ import storage from '../../utils/storage'
 export default {
   name: 'Article',
   components: {
-    WangEditor
+    WangEditor,
+    UploadFilled,
+    CloseBold
   },
   setup () {
     const instance = getCurrentInstance()
@@ -393,6 +411,23 @@ export default {
       }
     }
 
+    const ImgDel = async (e) => {
+      e.preventDefault()
+      console.log('ImgDel')
+      console.log(e.currentTarget.attributes['data-path'].value)
+      console.log('ImgDel')
+      const ImgDelObj = {
+        id: stateData.postForm.id ? stateData.postForm.id : 0,
+        img_path: e.currentTarget.attributes['data-path'].value ? e.currentTarget.attributes['data-path'].value : ''
+      }
+
+      const res = await instance.proxy.$api.deleteArticleImg(ImgDelObj)
+      if (res.status === 200) {
+        stateData.postForm.img_path = ''
+        instance.proxy.$message.success('删除成功')
+      }
+    }
+
     const getArticleList = async () => {
       const cateSearchList = await instance.proxy.$api.searchArticleList(stateData.queryForm)
       if (cateSearchList.status === 200) {
@@ -419,7 +454,8 @@ export default {
       beforeAvatarUpload,
       handleAvatarSuccess,
       handleEdit,
-      handleDel
+      handleDel,
+      ImgDel
     }
   }
 }
@@ -454,10 +490,37 @@ export default {
             border-bottom: 1px solid #ece8e8;
         }
     }
-    .avatar {
-        width: 178px;
-        height: 178px;
-        display: block;
+
+    .img-box{
+        width: 200px;
+        height: 100%;
+        position: relative;
+        .avatar {
+            width: inherit;
+            height: 100%;
+            display: block;
+        }
+        .img-del{
+            font-size: 20px;
+            //width: 22px;
+            //height: 22px;
+
+            border-radius: 50%;
+            background-color: white;
+            color: red;
+
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: center;
+            align-content: center;
+
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            padding: 2px;
+            cursor: pointer;
+        }
     }
+
 }
 </style>

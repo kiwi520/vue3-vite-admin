@@ -470,6 +470,17 @@ export default {
       ContentType: false,
       mock: false
     })
+  },
+
+  // 删除文章图片
+  deleteArticleImg (params) {
+    return request({
+      url: '/article/deleteArticleImg',
+      method: 'delete',
+      data: params,
+      ContentType: false,
+      mock: false
+    })
   }
 
 }
